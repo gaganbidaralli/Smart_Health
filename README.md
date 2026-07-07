@@ -4,9 +4,6 @@ SmartHealth AI is a modern, role-aware operations platform for managing Communit
 
 The platform combines a polished React-based dashboard, simulation-driven operational logic, and a lightweight backend API to make healthcare supply-chain decisions more visible, proactive, and actionable.
 
-## 🚀 Live Demo
-
-- Deployed application: https://smarthealth-750882492814.us-central1.run.app
 
 ## 🌐 Project Overview
 
