@@ -1,0 +1,126 @@
+{
+  "description": "SmartHealth AI - Firebase Realtime Database Schema",
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "centers": {
+      "$centerId": {
+        ".validate": "newData.hasChildren(['name', 'block', 'district', 'adminPhone', 'lastSync'])",
+        "name": { ".validate": "newData.isString()" },
+        "block": { ".validate": "newData.isString()" },
+        "district": { ".validate": "newData.isString()" },
+        "adminPhone": { ".validate": "newData.isString() && newData.val().matches(/^\\+91[0-9]{10}$/)" },
+        "lastSync": { ".validate": "newData.isNumber()" }
+      }
+    },
+    "stock": {
+      "$centerId": {
+        "$medicineId": {
+          ".validate": "newData.hasChildren(['name', 'currentStock', 'bufferStock', 'dailyBurnRate', 'lastUpdated'])",
+          "name": { ".validate": "newData.isString()" },
+          "currentStock": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "bufferStock": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "dailyBurnRate": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "lastUpdated": { ".validate": "newData.isNumber()" }
+        }
+      }
+    },
+    "alerts": {
+      "$alertId": {
+        ".validate": "newData.hasChildren(['centerId', 'medicineId', 'type', 'timestamp', 'status', 'formattedText'])",
+        "centerId": { ".validate": "newData.isString()" },
+        "medicineId": { ".validate": "newData.isString()" },
+        "type": { ".validate": "newData.val() == 'RED' || newData.val() == 'YELLOW' || newData.val() == 'DATA_GAP'" },
+        "timestamp": { ".validate": "newData.isNumber()" },
+        "status": { ".validate": "newData.val() == 'ACTIVE' || newData.val() == 'RESOLVED'" },
+        "formattedText": { ".validate": "newData.isString()" }
+      }
+    },
+    "footfall": {
+      "$centerId": {
+        "$dateStr": {
+          ".validate": "newData.hasChildren(['opdCount', 'ipdCount', 'total'])",
+          "opdCount": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "ipdCount": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "total": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+        }
+      }
+    },
+    "beds": {
+      "$centerId": {
+        ".validate": "newData.hasChildren(['capacity', 'occupied', 'available', 'lastUpdated'])",
+        "capacity": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "occupied": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "available": { ".validate": "newData.isNumber()" },
+        "lastUpdated": { ".validate": "newData.isNumber()" }
+      }
+    },
+    "beds_history": {
+      "$centerId": {
+        "$dateStr": {
+          ".validate": "newData.hasChildren(['capacity', 'occupied', 'available', 'occupancyRate'])",
+          "capacity": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "occupied": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "available": { ".validate": "newData.isNumber()" },
+          "occupancyRate": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" }
+        }
+      }
+    },
+    "attendance": {
+      "$centerId": {
+        "doctors": {
+          "$doctorId": {
+            ".validate": "newData.hasChildren(['name', 'status', 'absentDaysOfLast10'])",
+            "name": { ".validate": "newData.isString()" },
+            "status": { ".validate": "newData.val() == 'PRESENT' || newData.val() == 'ABSENT'" },
+            "absentDaysOfLast10": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+          }
+        }
+      }
+    },
+    "attendance_history": {
+      "$centerId": {
+        "$dateStr": {
+          ".validate": "newData.hasChildren(['presentCount', 'totalCount'])",
+          "presentCount": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "totalCount": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+        }
+      }
+    },
+    "tests": {
+      "$centerId": {
+        "$testId": {
+          ".validate": "newData.hasChildren(['name', 'kitCount', 'expiryTimestamp', 'isEssential'])",
+          "name": { ".validate": "newData.isString()" },
+          "kitCount": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "expiryTimestamp": { ".validate": "newData.isNumber()" },
+          "isEssential": { ".validate": "newData.isBoolean()" }
+        }
+      }
+    },
+    "forecasts": {
+      "$centerId": {
+        "$itemId": {
+          ".validate": "newData.hasChildren(['predictedDemand', 'shortfallDays', 'recommendedProcurement', 'deadline'])",
+          "predictedDemand": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "shortfallDays": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "recommendedProcurement": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "deadline": { ".validate": "newData.isNumber()" }
+        }
+      }
+    },
+    "health_history": {
+      "$centerId": {
+        "$dateStr": {
+          ".validate": "newData.hasChildren(['stock', 'attendance', 'test', 'bed', 'footfall', 'overall'])",
+          "stock": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "attendance": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "test": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "bed": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "footfall": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "overall": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" }
+        }
+      }
+    }
+  }
+}

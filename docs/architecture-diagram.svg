@@ -1,0 +1,51 @@
+<svg width="1100" height="620" viewBox="0 0 1100 620" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1100" height="620" fill="#07111f" rx="24"/>
+  <rect x="40" y="40" width="1020" height="540" rx="20" fill="#0f172a" stroke="#234"/>
+  <text x="550" y="88" text-anchor="middle" fill="#f8fafc" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">SmartHealth AI Architecture</text>
+
+  <rect x="120" y="140" width="220" height="90" rx="14" fill="#1d4ed8"/>
+  <text x="230" y="182" text-anchor="middle" fill="#fff" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="600">React Frontend</text>
+  <text x="230" y="210" text-anchor="middle" fill="#dbeafe" font-size="13" font-family="Segoe UI, Arial, sans-serif">Role-based dashboards</text>
+
+  <rect x="430" y="140" width="240" height="90" rx="14" fill="#0f766e"/>
+  <text x="550" y="182" text-anchor="middle" fill="#fff" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="600">Health Context</text>
+  <text x="550" y="210" text-anchor="middle" fill="#ccfbf1" font-size="13" font-family="Segoe UI, Arial, sans-serif">Global state & actions</text>
+
+  <rect x="740" y="140" width="240" height="90" rx="14" fill="#7c3aed"/>
+  <text x="860" y="182" text-anchor="middle" fill="#fff" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="600">Simulation Engine</text>
+  <text x="860" y="210" text-anchor="middle" fill="#ede9fe" font-size="13" font-family="Segoe UI, Arial, sans-serif">Centers, staffing, stock</text>
+
+  <path d="M340 185 L430 185" stroke="#60a5fa" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M670 185 L740 185" stroke="#60a5fa" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+
+  <rect x="180" y="310" width="180" height="88" rx="14" fill="#b45309"/>
+  <text x="270" y="345" text-anchor="middle" fill="#fff" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="600">Alert Evaluator</text>
+  <text x="270" y="370" text-anchor="middle" fill="#ffedd5" font-size="13" font-family="Segoe UI, Arial, sans-serif">Risk detection</text>
+
+  <rect x="430" y="310" width="180" height="88" rx="14" fill="#15803d"/>
+  <text x="520" y="345" text-anchor="middle" fill="#fff" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="600">Forecasting</text>
+  <text x="520" y="370" text-anchor="middle" fill="#dcfce7" font-size="13" font-family="Segoe UI, Arial, sans-serif">Demand planning</text>
+
+  <rect x="680" y="310" width="200" height="88" rx="14" fill="#be185d"/>
+  <text x="780" y="345" text-anchor="middle" fill="#fff" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="600">Redistribution</text>
+  <text x="780" y="370" text-anchor="middle" fill="#ffe4f0" font-size="13" font-family="Segoe UI, Arial, sans-serif">Transfer orders</text>
+
+  <path d="M860 230 L860 310" stroke="#60a5fa" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M780 398 L640 480" stroke="#60a5fa" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M520 398 L520 480" stroke="#60a5fa" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M270 398 L400 480" stroke="#60a5fa" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+
+  <rect x="360" y="480" width="320" height="70" rx="14" fill="#334155"/>
+  <text x="520" y="512" text-anchor="middle" fill="#fff" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="600">Dashboard & Operations UI</text>
+  <text x="520" y="535" text-anchor="middle" fill="#cbd5e1" font-size="13" font-family="Segoe UI, Arial, sans-serif">Alerts, rankings, approvals</text>
+
+  <rect x="780" y="480" width="220" height="70" rx="14" fill="#1e293b" stroke="#475569"/>
+  <text x="890" y="512" text-anchor="middle" fill="#fff" font-size="20" font-family="Segoe UI, Arial, sans-serif" font-weight="600">Express API</text>
+  <text x="890" y="535" text-anchor="middle" fill="#cbd5e1" font-size="13" font-family="Segoe UI, Arial, sans-serif">Firebase + jobs</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#60a5fa"/>
+    </marker>
+  </defs>
+</svg>

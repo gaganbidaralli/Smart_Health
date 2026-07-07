@@ -1,0 +1,3085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHealth AI - Operations Dashboard (Local Standalone Client)</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏥</text></svg>" />
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-glass: rgba(17, 24, 39, 0.7);
+      --border-glass: rgba(255, 255, 255, 0.06);
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      
+      --neon-blue: #3b82f6;
+      --neon-green: #10b981;
+      --neon-amber: #f59e0b;
+      --neon-red: #ef4444;
+      
+      --shadow-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --font-heading: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(239, 68, 68, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+    }
+
+    h1, h2, h3, h4, h5 {
+      font-family: var(--font-heading);
+      letter-spacing: -0.02em;
+    }
+
+    /* Glassmorphism utility card */
+    .glass-panel {
+      background: var(--bg-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      box-shadow: var(--shadow-glow);
+      padding: 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-panel:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    /* Main Layout */
+    .app-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 16px 24px;
+      background: rgba(17, 24, 39, 0.5);
+      border-radius: 12px;
+      border: 1px solid var(--border-glass);
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-section h1 {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #3b82f6, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .role-selector {
+      display: flex;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border-glass);
+    }
+
+    .role-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: var(--font-body);
+      transition: all 0.2s ease;
+    }
+
+    .role-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .role-btn.active {
+      background: var(--neon-blue);
+      color: white;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Summary Cards Grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .summary-card .label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .summary-card .value {
+      font-size: 28px;
+      font-weight: 700;
+      font-family: var(--font-heading);
+    }
+
+    .summary-card.red-glow .value { color: var(--neon-red); text-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+    .summary-card.amber-glow .value { color: var(--neon-amber); text-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+    .summary-card.green-glow .value { color: var(--neon-green); text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+
+    /* Main Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 24px;
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 8px;
+    }
+
+    /* Live Alerts Stack */
+    .alerts-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .alert-item {
+      border-left: 4px solid var(--neon-blue);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .alert-item.red { border-left-color: var(--neon-red); background: rgba(239, 68, 68, 0.05); }
+    .alert-item.yellow { border-left-color: var(--neon-amber); background: rgba(245, 158, 11, 0.05); }
+    .alert-item.data-gap { border-left-color: var(--neon-amber); background: rgba(245, 158, 11, 0.03); }
+
+    .alert-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .alert-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .alert-action {
+      font-size: 12px;
+      color: var(--neon-blue);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* Vector Map styling */
+    .map-container {
+      height: 500px;
+      position: relative;
+      background: rgba(255, 255, 255, 0.01);
+      border-radius: 8px;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .map-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-pin {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .map-pin:hover {
+      transform: scale(1.3);
+    }
+
+    .pin-label {
+      font-size: 10px;
+      fill: var(--text-secondary);
+      font-weight: 500;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    /* Rankings & Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      color: var(--text-secondary);
+      font-weight: 500;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .health-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .health-badge.good { background: rgba(16, 185, 129, 0.15); color: var(--neon-green); }
+    .health-badge.warning { background: rgba(245, 158, 11, 0.15); color: var(--neon-amber); }
+    .health-badge.critical { background: rgba(239, 68, 68, 0.15); color: var(--neon-red); }
+
+    /* SVG Charts */
+    .chart-container {
+      margin-top: 12px;
+    }
+
+    .chart-svg {
+      background: rgba(255, 255, 255, 0.01);
+      border-radius: 8px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    .chart-path {
+      fill: none;
+      stroke: var(--neon-blue);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chart-bar {
+      fill: var(--neon-green);
+      transition: height 0.3s ease;
+    }
+
+    .chart-grid {
+      stroke: rgba(255, 255, 255, 0.05);
+      stroke-width: 1;
+    }
+
+    .chart-axis {
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 1;
+    }
+
+    .chart-label {
+      fill: var(--text-secondary);
+      font-size: 9px;
+      font-family: var(--font-body);
+    }
+
+    /* Actions Table Buttons */
+    .btn-action {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      font-family: var(--font-body);
+      transition: all 0.2s ease;
+    }
+
+    .btn-action.approve {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--neon-green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-action.approve:hover {
+      background: var(--neon-green);
+      color: white;
+    }
+
+    .btn-action.reject {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--neon-red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      margin-left: 8px;
+    }
+
+    .btn-action.reject:hover {
+      background: var(--neon-red);
+      color: white;
+    }
+
+    /* Field Worker layout styling */
+    .field-worker-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    input, select {
+      background: #111827; /* solid dark background to resolve native select dropdown white-on-white bugs */
+      border: 1px solid var(--border-glass);
+      border-radius: 6px;
+      color: white;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-family: var(--font-body);
+      outline: none;
+      transition: border-color 0.2s ease;
+      width: 100%;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--neon-blue);
+    }
+
+    select option {
+      background-color: #111827; /* solid dark background for options dropdown */
+      color: var(--text-primary);
+    }
+
+    .btn-submit {
+      background: var(--neon-blue);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Voice Interface (Multilingual simulation) */
+    .voice-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .mic-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.1);
+      border: 2px solid var(--neon-blue);
+      color: var(--neon-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 32px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .mic-btn.recording {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--neon-red);
+      color: var(--neon-red);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .voice-status {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .voice-response-box {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+      padding: 16px;
+      width: 100%;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: left;
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+
+    /* Custom Dropdown Styling */
+    .custom-dropdown-container {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+
+    .custom-dropdown-trigger {
+      background: rgba(17, 24, 39, 0.65);
+      border: 1px solid var(--border-glass);
+      border-radius: 6px;
+      color: white;
+      padding: 10px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 38px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .custom-dropdown-trigger:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .custom-dropdown-trigger.open {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+    }
+
+    .custom-dropdown-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      background: #111827;
+      border: 1px solid var(--border-glass);
+      border-radius: 6px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 99999;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(16px);
+      display: none;
+    }
+
+    .custom-dropdown-options.show {
+      display: block;
+    }
+
+    .custom-dropdown-option {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: white;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      text-align: left;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .custom-dropdown-option:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .custom-dropdown-option.selected {
+      color: var(--neon-blue);
+      background: rgba(59, 130, 246, 0.12);
+    }
+  </style>
+</head>
+<body>
+  <!-- Glassmorphic Login Portal Overlay -->
+  <div id="login-portal" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; width: 100vw; background: radial-gradient(circle at center, #111827 0%, #030712 100%); font-family: var(--font-body); color: white; position: fixed; top: 0; left: 0; z-index: 999999;">
+    <div class="glass-panel" style="width: 100%; max-width: 400px; padding: 36px; box-sizing: border-box; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); box-shadow: 0 8px 32px rgba(0,0,0,0.5); text-align: center;">
+      <div style="font-size: 44px; margin-bottom: 12px;">🏥</div>
+      <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 6px; font-family: var(--font-heading);">SmartHealth AI</h2>
+      <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 24px;">National CHC/PHC Operations Co-Pilot</p>
+      
+      <form id="login-form" onsubmit="handleLoginSubmit(event)" style="display: flex; flex-direction: column; gap: 16px; text-align: left;">
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+          <label style="font-size: 11px; color: var(--text-secondary);">Username</label>
+          <input 
+            id="login-username"
+            type="text" 
+            placeholder="Username..."
+            style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 10px 12px; color: white; outline: none; font-size: 13px; width: 100%; box-sizing: border-box;"
+            required
+          />
+        </div>
+        
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+          <label style="font-size: 11px; color: var(--text-secondary);">Password</label>
+          <input 
+            id="login-password"
+            type="password" 
+            placeholder="Password..."
+            style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 10px 12px; color: white; outline: none; font-size: 13px; width: 100%; box-sizing: border-box;"
+            required
+          />
+        </div>
+
+        <div id="login-error" style="color: var(--neon-red); font-size: 11px; text-align: center; margin-top: 2px; display: none;">
+          Invalid credentials. Check hints below.
+        </div>
+
+        <button 
+          type="submit" 
+          style="background: var(--neon-blue); color: white; border: none; padding: 11px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; margin-top: 6px; box-shadow: 0 0 16px rgba(59, 130, 246, 0.3); width: 100%;"
+        >
+          Authenticate Portal
+        </button>
+      </form>
+    </div>
+  </div>
+  <div class="app-container" style="display: none;">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-section">
+        <span style="font-size: 32px;">🏥</span>
+        <div>
+          <h1>SmartHealth AI</h1>
+          <p style="font-size: 11px; color: var(--text-secondary);">Multilingual CHC/PHC Operations Co-Pilot</p>
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <div style="text-align: right; font-size: 12px;">
+          <span id="sync-indicator" style="color: var(--neon-green); font-weight: 600; transition: opacity 0.2s ease;">● Live Sync Active</span>
+          <div id="sync-time" style="color: var(--text-secondary); margin-top: 2px;">25 Jun 2026, 20:45</div>
+        </div>
+
+        <!-- Real-Time Simulation Control Center -->
+        <div style="display: flex; gap: 6px; align-items: center; background: rgba(255, 255, 255, 0.03); padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border-glass);">
+          <button id="sim-play-btn" class="role-btn" style="padding: 4px 8px; font-size: 11px; background: rgba(59, 130, 246, 0.2); color: var(--neon-blue); border-radius: 4px;" onclick="toggleSim()">⏸️ Pause</button>
+          <select id="sim-speed-select" onchange="changeSimSpeed(this.value)" style="width: auto; padding: 4px; font-size: 11px; background: transparent; border: none; color: white; cursor: pointer;">
+            <option value="1">1x Speed</option>
+            <option value="5">5x Speed</option>
+            <option value="10">10x Speed</option>
+          </select>
+          <select id="sim-event-select" onchange="triggerSimIncident(this.value); updateSelectValue('sim-event-select', '');" style="width: auto; padding: 4px; font-size: 11px; background: transparent; border: none; color: var(--neon-red); font-weight: 600; cursor: pointer;">
+            <option value="" style="color: var(--text-secondary);">⚡ Trigger Incident</option>
+            <option value="outbreak">Simulate Outbreak Surge</option>
+            <option value="stock_drain">Simulate Stock Drain</option>
+            <option value="staff_leave">Simulate Staff Emergency</option>
+            <option value="kit_expiry">Simulate Lab Kit Expiry</option>
+          </select>
+        </div>
+        
+        <div id="role-logout-container" style="display: flex; gap: 12px; align-items: center;">
+          <span style="font-size: 13px; color: var(--text-secondary);">
+            Role: <strong id="header-role-text" style="color: var(--neon-blue); text-transform: capitalize;">district officer</strong>
+          </span>
+          <button 
+            class="role-btn active" 
+            style="padding: 6px 12px; font-size: 12px; background: rgba(239, 68, 68, 0.2); color: var(--neon-red); border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.4); cursor: pointer; font-weight: 600;"
+            onclick="logout()"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Role Title Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 id="role-title" style="font-size: 20px; font-weight: 500;">National Operations Command Center</h2>
+      <div id="center-select-container" class="hidden">
+        <select id="center-selector" onchange="onCenterSelectChange(this.value)" style="width: 200px;">
+          <option value="center_1">PHC Dwarka (Delhi)</option>
+          <option value="center_2">CHC Bandra (Mumbai)</option>
+          <option value="center_3">PHC Indiranagar (Bengaluru)</option>
+          <option value="center_4">CHC Salt Lake (Kolkata)</option>
+          <option value="center_5">PHC Hazratganj (Lucknow)</option>
+          <option value="center_6">PHC Alandur (Chennai)</option>
+          <option value="center_7">PHC Guindy (Chennai)</option>
+          <option value="center_8">CHC Tambaram (Chennai)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- DISTRICT OFFICER VIEW -->
+    <div id="view-district">
+      <!-- Regional Operations Unit Filter -->
+      <div class="glass-panel" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 16px 24px; position: relative; z-index: 100;">
+        <div>
+          <h3 style="font-size: 15px; font-weight: 600; color: var(--text-primary); font-family: var(--font-heading);">📍 Regional Command Operations</h3>
+          <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Isolate approvals, alerts, and forecasts by State/Region</p>
+        </div>
+        <select id="region-selector" onchange="onRegionChange(this.value)" style="width: 260px;">
+          <option value="ALL">All India Command</option>
+          <option value="NORTH">North Region (Delhi & Lucknow)</option>
+          <option value="WEST">West Region (Mumbai)</option>
+          <option value="SOUTH">South Region (Bengaluru & Chennai)</option>
+          <option value="EAST">East Region (Kolkata)</option>
+        </select>
+      </div>
+
+      <!-- Summary Grid -->
+      <div class="summary-grid">
+        <div class="glass-panel summary-card">
+          <span class="label">Centers Logged</span>
+          <span id="summary-centers-count" class="value">8 / 8</span>
+        </div>
+        <div class="glass-panel summary-card red-glow">
+          <span class="label">Critical Alerts (RED)</span>
+          <span id="summary-critical" class="value">2</span>
+        </div>
+        <div class="glass-panel summary-card amber-glow">
+          <span class="label">Warnings (YELLOW)</span>
+          <span id="summary-warning" class="value">3</span>
+        </div>
+        <div class="glass-panel summary-card amber-glow">
+          <span class="label">Data Gaps Tracker</span>
+          <span id="summary-datagap" class="value">1</span>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="dashboard-grid">
+        <!-- Left Column: Map & Rankings -->
+        <div class="left-column">
+          <!-- Heatmap Map -->
+          <div class="glass-panel">
+            <h3 class="panel-title">📍 National India Map & Score Heatmap</h3>
+            <div class="map-container">
+              <svg class="map-svg" viewBox="0 0 400 370">
+                <!-- Latitude/Longitude tactical grids -->
+                <g stroke="rgba(255, 255, 255, 0.03)" stroke-width="0.5" stroke-dasharray="3,3" style="pointer-events: none;">
+                  <line x1="100" y1="20" x2="100" y2="350" />
+                  <line x1="200" y1="20" x2="200" y2="350" />
+                  <line x1="300" y1="20" x2="300" y2="350" />
+                  <line x1="40" y1="100" x2="360" y2="100" />
+                  <line x1="40" y1="200" x2="360" y2="200" />
+                  <line x1="40" y1="300" x2="360" y2="300" />
+                </g>
+                
+                <!-- Region labels container group -->
+                <g id="map-region-labels-group" style="pointer-events: none;"></g>
+
+                <!-- Stylized vector Outline of India -->
+                <path d="M 135,40 L 145,55 L 140,75 L 160,85 L 180,95 L 210,115 L 230,115 L 245,105 L 265,108 L 290,115 L 320,120 L 325,135 L 305,145 L 285,148 L 280,165 L 260,168 L 250,185 L 253,205 L 235,215 L 225,235 L 205,265 L 175,295 L 150,340 L 142,335 L 125,285 L 115,250 L 105,215 L 85,210 L 65,200 L 60,185 L 75,170 L 95,160 L 105,140 L 100,115 L 110,90 L 122,80 Z" fill="rgba(255, 255, 255, 0.02)" stroke="rgba(255, 255, 255, 0.1)" stroke-width="2" />
+                
+                <!-- Pins will be drawn dynamically -->
+                <g id="map-pins-container"></g>
+              </svg>
+            </div>
+            
+            <div id="map-detail-card" class="glass-panel hidden" style="margin-top: 16px; background: rgba(255, 255, 255, 0.02); padding: 16px;">
+              <!-- Loaded dynamically -->
+            </div>
+          </div>
+
+          <!-- Center Rankings & Modular Reports Tab Panel -->
+          <div class="glass-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 8px; margin-bottom: 16px;">
+              <h3 class="panel-title" style="margin-bottom: 0; border: none; padding-bottom: 0;">📊 District Operations Center</h3>
+              <div style="display: flex; gap: 8px;">
+                <button id="dist-tab-rankings-btn" class="role-btn active" style="padding: 4px 8px; font-size: 11px;" onclick="setDistrictTab('rankings')">Rankings</button>
+                <button id="dist-tab-staff-btn" class="role-btn" style="padding: 4px 8px; font-size: 11px;" onclick="setDistrictTab('staff')">Staff & Labs</button>
+                <button id="dist-tab-forecast-btn" class="role-btn" style="padding: 4px 8px; font-size: 11px;" onclick="setDistrictTab('forecast')">AI Forecasts</button>
+              </div>
+            </div>
+
+            <!-- Tab 1: Rankings -->
+            <div id="dist-tab-rankings" class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Center Name</th>
+                    <th>Block</th>
+                    <th>Overall Score</th>
+                    <th>Status</th>
+                    <th>Action Needed</th>
+                  </tr>
+                </thead>
+                <tbody id="rankings-table-body">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tab 2: Staff & Labs -->
+            <div id="dist-tab-staff" class="table-container hidden">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Center Name</th>
+                    <th>Staff Present</th>
+                    <th>Staffing Status</th>
+                    <th>Essential Labs Gaps</th>
+                    <th>Kit Warnings</th>
+                  </tr>
+                </thead>
+                <tbody id="dist-staff-table-body">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tab 3: AI Forecasts -->
+            <div id="dist-tab-forecast" class="table-container hidden">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Center Name</th>
+                    <th>Item</th>
+                    <th>Current Stock</th>
+                    <th>Surge Factor</th>
+                    <th>AI 30D Forecast</th>
+                    <th>Rec. Procurement</th>
+                    <th>Shortfall</th>
+                  </tr>
+                </thead>
+                <tbody id="dist-forecast-table-body">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Trend Charts -->
+          <div class="glass-panel">
+            <h3 class="panel-title">📈 30-Day Footfall & Stock Trends</h3>
+            <div class="chart-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <h4 style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">Average Patient Footfall Trend</h4>
+                <svg class="chart-svg" viewBox="0 0 200 100">
+                  <!-- Grid lines -->
+                  <line x1="10" y1="10" x2="190" y2="10" class="chart-grid" />
+                  <line x1="10" y1="40" x2="190" y2="40" class="chart-grid" />
+                  <line x1="10" y1="70" x2="190" y2="70" class="chart-grid" />
+                  
+                  <!-- X Axis Line -->
+                  <line x1="10" y1="75" x2="190" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+                  
+                  <!-- Line Curve -->
+                  <path d="M 10,75 Q 40,65 70,55 T 130,35 T 190,15" class="chart-path" stroke="var(--neon-blue)" />
+                  
+                  <!-- Labels -->
+                  <text x="10" y="90" class="chart-label">Jun 1</text>
+                  <text x="95" y="90" class="chart-label">Jun 13</text>
+                  <text x="170" y="90" class="chart-label">Jun 25</text>
+                </svg>
+              </div>
+              <div>
+                <h4 style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">Average Stock Availability</h4>
+                <svg id="stock-chart-svg" class="chart-svg" viewBox="0 0 200 100">
+                  <!-- Grid lines -->
+                  <line x1="10" y1="10" x2="190" y2="10" class="chart-grid" />
+                  <line x1="10" y1="40" x2="190" y2="40" class="chart-grid" />
+                  <line x1="10" y1="70" x2="190" y2="70" class="chart-grid" />
+                  
+                  <!-- X Axis Line -->
+                  <line x1="10" y1="75" x2="190" y2="75" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+                  
+                  <g id="stock-chart-bars-group"></g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Alerts, Transfers, Logs -->
+        <div class="right-column">
+          <!-- Alerts Panel -->
+          <div class="glass-panel" style="max-height: 420px; display: flex; flex-direction: column;">
+            <h3 class="panel-title">🚨 Real-time Critical Alerts</h3>
+            <div id="alerts-stack" class="alerts-stack">
+              <!-- Loaded dynamically -->
+            </div>
+          </div>
+
+          <!-- Pending Actions -->
+          <div class="glass-panel">
+            <h3 class="panel-title">⚡ Pending Transfer Approvals</h3>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Detail</th>
+                    <th>Qty</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="transfers-table-body">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Active Dispatches -->
+          <div class="glass-panel">
+            <h3 class="panel-title">🚚 Active Supply Chain Dispatches</h3>
+            <div class="table-container" style="max-height: 180px; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Medicine</th>
+                    <th>Qty</th>
+                    <th>Transit Status</th>
+                  </tr>
+                </thead>
+                <tbody id="dispatches-table-body">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Audit Log -->
+          <div class="glass-panel">
+            <h3 class="panel-title">📋 Operations System Log</h3>
+            <div id="audit-log-container" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+              <!-- Loaded dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER ADMIN VIEW -->
+    <div id="view-admin" class="hidden">
+      <div style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 24px;">
+        <div class="left-column">
+          <div class="glass-panel">
+            <h3 class="panel-title">🛏️ Bed Capacity Management</h3>
+            <div style="background: rgba(255, 255, 255, 0.02); padding: 16px; border-radius: 8px; border: 1px solid var(--border-glass); margin-bottom: 16px;">
+              <p style="font-size: 12px; color: var(--text-secondary);">Current Bed Utilization</p>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px;">
+                <span id="admin-beds-occupied" style="font-size: 28px; font-weight: 700;">10 / 10</span>
+                <span id="admin-beds-occupancy-percent" style="font-size: 13px; color: var(--text-secondary);">100% Occupancy</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Update Occupied Beds Count</label>
+              <input type="number" id="admin-beds-input" min="0" oninput="onAdminBedsChange(this.value)">
+              <span style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+                Changing occupied count triggers Red/Yellow bed capacity alerts instantly.
+              </span>
+            </div>
+          </div>
+
+          <div class="glass-panel">
+            <h3 class="panel-title">⚠️ Local Active Warnings</h3>
+            <div id="admin-alerts-container" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Loaded dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <div class="right-column">
+          <div class="glass-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 8px; margin-bottom: 16px;">
+              <h3 class="panel-title" style="margin-bottom: 0; border: none; padding-bottom: 0;">🏥 Center Control Panel</h3>
+              <div style="display: flex; gap: 6px;">
+                <button id="admin-tab-stock-btn" class="role-btn active" style="padding: 4px 6px; font-size: 11px;" onclick="setAdminTab('stock')">Stocks</button>
+                <button id="admin-tab-staff-btn" class="role-btn" style="padding: 4px 6px; font-size: 11px;" onclick="setAdminTab('staff')">Staff</button>
+                <button id="admin-tab-labs-btn" class="role-btn" style="padding: 4px 6px; font-size: 11px;" onclick="setAdminTab('labs')">Labs</button>
+                <button id="admin-tab-forecast-btn" class="role-btn" style="padding: 4px 6px; font-size: 11px;" onclick="setAdminTab('forecast')">AI Forecast</button>
+              </div>
+            </div>
+
+            <!-- Tab 1: Stocks -->
+            <div id="admin-tab-stock" class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Medicine Name</th>
+                    <th>Current Stock</th>
+                    <th>Buffer Target</th>
+                    <th>Burn Rate (day)</th>
+                    <th>Days to Out</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-stock-table-body">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tab 2: Staff Registry -->
+            <div id="admin-tab-staff" class="table-container hidden">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Staff Name</th>
+                    <th>10D Absences</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-staff-table-body">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tab 3: Diagnostic Labs -->
+            <div id="admin-tab-labs" class="table-container hidden">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Test Kit</th>
+                    <th>Essential</th>
+                    <th>Count</th>
+                    <th>Expiry</th>
+                    <th>Update Kit count</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-labs-table-body">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tab 4: AI Forecasts -->
+            <div id="admin-tab-forecast" class="table-container hidden">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Medicine Name</th>
+                    <th>Peak Surge</th>
+                    <th>AI 30D Forecast</th>
+                    <th>Deficit Shortfall</th>
+                    <th>Days Left</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-forecast-table-body">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIELD WORKER VIEW -->
+    <div id="view-worker" class="hidden">
+      <div class="field-worker-grid">
+        <!-- Stock entry -->
+        <div class="glass-panel">
+          <h3 class="panel-title">✍️ Manual Log Entry</h3>
+          
+          <div class="form-group">
+            <label>Select Register Item</label>
+            <select id="worker-med-selector">
+              <option value="med_paracetamol">Paracetamol 500mg</option>
+              <option value="med_ors">ORS Packets</option>
+              <option value="med_pregtest">Pregnancy Test Kit</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Current Quantity (Units)</label>
+            <input type="number" id="worker-stock-input" placeholder="Enter stock amount...">
+          </div>
+
+          <button class="btn-submit" onclick="submitWorkerStock()">Sync Log Entry</button>
+        </div>
+
+        <!-- Multilingual Voice Assistant -->
+        <div class="glass-panel">
+          <h3 class="panel-title">🎙️ Multilingual Voice Interface</h3>
+          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">
+            Speak in your language. Speech-to-Text translates, processes query with Gemini, and outputs formatted charts and synthesized audio read-back.
+          </p>
+
+          <div class="voice-section">
+            <button id="voice-mic-btn" class="mic-btn" onclick="startMicRecord()">🎤</button>
+            <span id="voice-status" class="voice-status">Select a sample voice input below to simulate:</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+            <button class="voice-sample-btn" onclick="triggerVoiceSample(0)" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); padding: 10px 14px; border-radius: 6px; text-align: left; color: white; cursor: pointer; font-size: 12px;">
+              <strong style="color: var(--neon-blue);">[Hindi]:</strong> ORS पैकेट कितने बचे हैं? (How many ORS packets left?)
+            </button>
+            <button class="voice-sample-btn" onclick="triggerVoiceSample(1)" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); padding: 10px 14px; border-radius: 6px; text-align: left; color: white; cursor: pointer; font-size: 12px;">
+              <strong style="color: var(--neon-blue);">[Tamil]:</strong> பாராசிட்டமால் மாத்திரைகள் எவ்வளவு உள்ளது?
+            </button>
+            <button class="voice-sample-btn" onclick="triggerVoiceSample(2)" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); padding: 10px 14px; border-radius: 6px; text-align: left; color: white; cursor: pointer; font-size: 12px;">
+              <strong style="color: var(--neon-blue);">[Telugu]:</strong> ఇక్కడ ఎన్ని బెడ్లు ఖాళీగా ఉన్నాయి?
+            </button>
+          </div>
+
+          <div id="voice-response-container" class="hidden" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-size: 11px; color: var(--text-secondary);">
+              <strong>STT Transcript:</strong> <span id="voice-transcript">""</span>
+            </div>
+            <pre id="voice-response" class="voice-response-box" style="font-family: monospace; white-space: pre-wrap; font-size: 11px;"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State Manager
+    let currentRole = 'DISTRICT_OFFICER';
+    let selectedCenterId = null;
+    let activeCenterAdminId = 'center_1';
+    let activeWorkerCenterId = 'center_1';
+    let selectedRegion = 'ALL';
+    
+    // Simulation state
+    let isSimActive = true;
+    let simSpeed = 1;
+    let simInterval = null;
+    
+    // Active tabs state
+    let activeDistrictTab = 'rankings'; // rankings, staff, forecast
+    let activeAdminTab = 'stock'; // stock, staff, labs, forecast
+
+    // Simulated DB Data (Aligned with React HealthContext & Firebase spec)
+    const centers = {
+      'center_1': {
+        id: 'center_1',
+        name: 'PHC Dwarka (Delhi)',
+        block: 'South West Delhi',
+        district: 'Delhi',
+        region: 'NORTH',
+        latitude: 28.5921,
+        longitude: 77.0465,
+        adminPhone: '+919876543210',
+        lastSync: Date.now() - 30 * 60 * 1000,
+        healthScores: { stock: 45, attendance: 50, test: 80, bed: 40, footfall: 80, overall: 56 },
+        beds: { capacity: 15, occupied: 12, available: 3 },
+        stocks: {
+          'med_paracetamol': { name: 'Paracetamol 500mg', currentStock: 8, bufferStock: 150, dailyBurnRate: 15 },
+          'med_ors': { name: 'ORS Packets', currentStock: 15, bufferStock: 200, dailyBurnRate: 10 },
+          'med_pregtest': { name: 'Pregnancy Test Kit', currentStock: 60, bufferStock: 100, dailyBurnRate: 3 },
+          'med_amoxicillin': { name: 'Amoxicillin 250mg', currentStock: 120, bufferStock: 180, dailyBurnRate: 12 },
+          'med_azithromycin': { name: 'Azithromycin 500mg', currentStock: 6, bufferStock: 100, dailyBurnRate: 6 },
+          'med_ibuprofen': { name: 'Ibuprofen 400mg', currentStock: 105, bufferStock: 150, dailyBurnRate: 8 },
+          'med_zinc': { name: 'Zinc Tablets 20mg', currentStock: 190, bufferStock: 250, dailyBurnRate: 15 }
+        },
+        tests: {
+          'test_glucose': { id: 'test_glucose', name: 'Glucose Test Kit', kitCount: 40, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: true },
+          'test_cbc': { id: 'test_cbc', name: 'CBC Analyzer Reagent', kitCount: 8, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: true },
+          'test_malaria': { id: 'test_malaria', name: 'Malaria RDT Kit', kitCount: 25, expiryTimestamp: Date.now() + 10 * 24 * 3600 * 1000, isEssential: false },
+          'test_urine': { id: 'test_urine', name: 'Urine Dipstick Strip', kitCount: 15, expiryTimestamp: Date.now() - 5 * 24 * 3600 * 1000, isEssential: false },
+          'test_hiv': { id: 'test_hiv', name: 'HIV Antibody Kit', kitCount: 5, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_dengue': { id: 'test_dengue', name: 'Dengue NS1 Kit', kitCount: 30, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: true },
+          'test_typhoid': { id: 'test_typhoid', name: 'Typhoid RDT Kit', kitCount: 4, expiryTimestamp: Date.now() + 15 * 24 * 3600 * 1000, isEssential: false }
+        },
+        doctors: {
+          'doc_1': { id: 'doc_1', name: 'Dr. Aravind Swamy', status: 'PRESENT', absentDaysOfLast10: 1 },
+          'doc_2': { id: 'doc_2', name: 'Dr. Priya Ranjan', status: 'ABSENT', absentDaysOfLast10: 5 },
+          'doc_3': { id: 'doc_3', name: 'Dr. Sanjay Sen', status: 'ABSENT', absentDaysOfLast10: 4 }
+        },
+        footfall: { opdCount: 78, ipdCount: 15, total: 93 }
+      },
+      'center_2': {
+        id: 'center_2',
+        name: 'CHC Bandra (Mumbai)',
+        block: 'Bandra West',
+        district: 'Mumbai Sub',
+        region: 'WEST',
+        latitude: 19.0596,
+        longitude: 72.8295,
+        adminPhone: '+919876543211',
+        lastSync: Date.now() - 26 * 60 * 60 * 1000,
+        healthScores: { stock: 95, attendance: 90, test: 95, bed: 88, footfall: 95, overall: 93 },
+        beds: { capacity: 50, occupied: 44, available: 6 },
+        stocks: {
+          'med_paracetamol': { name: 'Paracetamol 500mg', currentStock: 150, bufferStock: 200, dailyBurnRate: 10 },
+          'med_ors': { name: 'ORS Packets', currentStock: 180, bufferStock: 250, dailyBurnRate: 8 },
+          'med_pregtest': { name: 'Pregnancy Test Kit', currentStock: 120, bufferStock: 150, dailyBurnRate: 5 },
+          'med_amoxicillin': { name: 'Amoxicillin 250mg', currentStock: 210, bufferStock: 200, dailyBurnRate: 10 },
+          'med_azithromycin': { name: 'Azithromycin 500mg', currentStock: 115, bufferStock: 120, dailyBurnRate: 6 },
+          'med_ibuprofen': { name: 'Ibuprofen 400mg', currentStock: 160, bufferStock: 180, dailyBurnRate: 8 },
+          'med_zinc': { name: 'Zinc Tablets 20mg', currentStock: 250, bufferStock: 300, dailyBurnRate: 12 }
+        },
+        tests: {
+          'test_glucose': { id: 'test_glucose', name: 'Glucose Test Kit', kitCount: 150, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_cbc': { id: 'test_cbc', name: 'CBC Analyzer Reagent', kitCount: 90, expiryTimestamp: Date.now() + 90 * 24 * 3600 * 1000, isEssential: true },
+          'test_malaria': { id: 'test_malaria', name: 'Malaria RDT Kit', kitCount: 80, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: false },
+          'test_urine': { id: 'test_urine', name: 'Urine Dipstick Strip', kitCount: 100, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: false },
+          'test_hiv': { id: 'test_hiv', name: 'HIV Antibody Kit', kitCount: 60, expiryTimestamp: Date.now() + 120 * 24 * 3600 * 1000, isEssential: true },
+          'test_dengue': { id: 'test_dengue', name: 'Dengue NS1 Kit', kitCount: 95, expiryTimestamp: Date.now() + 90 * 24 * 3600 * 1000, isEssential: true },
+          'test_typhoid': { id: 'test_typhoid', name: 'Typhoid RDT Kit', kitCount: 45, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: false }
+        },
+        doctors: {
+          'doc_1': { id: 'doc_1', name: 'Dr. K. Raghavan', status: 'PRESENT', absentDaysOfLast10: 0 },
+          'doc_2': { id: 'doc_2', name: 'Dr. Meera Bai', status: 'PRESENT', absentDaysOfLast10: 1 },
+          'doc_3': { id: 'doc_3', name: 'Dr. Thomas Alva', status: 'PRESENT', absentDaysOfLast10: 2 }
+        },
+        footfall: { opdCount: 130, ipdCount: 35, total: 165 }
+      },
+      'center_3': {
+        id: 'center_3',
+        name: 'PHC Indiranagar (Bengaluru)',
+        block: 'East Bengaluru',
+        district: 'Bengaluru Urban',
+        region: 'SOUTH',
+        latitude: 12.9718,
+        longitude: 77.6412,
+        adminPhone: '+919876543212',
+        lastSync: Date.now() - 2 * 60 * 60 * 1000,
+        healthScores: { stock: 90, attendance: 85, test: 90, bed: 30, footfall: 85, overall: 79 },
+        beds: { capacity: 30, occupied: 5, available: 25 },
+        stocks: {
+          'med_paracetamol': { name: 'Paracetamol 500mg', currentStock: 200, bufferStock: 250, dailyBurnRate: 15 },
+          'med_ors': { name: 'ORS Packets', currentStock: 130, bufferStock: 200, dailyBurnRate: 10 },
+          'med_pregtest': { name: 'Pregnancy Test Kit', currentStock: 140, bufferStock: 150, dailyBurnRate: 5 },
+          'med_amoxicillin': { name: 'Amoxicillin 250mg', currentStock: 250, bufferStock: 250, dailyBurnRate: 12 },
+          'med_azithromycin': { name: 'Azithromycin 500mg', currentStock: 160, bufferStock: 150, dailyBurnRate: 8 },
+          'med_ibuprofen': { name: 'Ibuprofen 400mg', currentStock: 190, bufferStock: 180, dailyBurnRate: 10 },
+          'med_zinc': { name: 'Zinc Tablets 20mg', currentStock: 280, bufferStock: 300, dailyBurnRate: 15 }
+        },
+        tests: {
+          'test_glucose': { id: 'test_glucose', name: 'Glucose Test Kit', kitCount: 120, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_cbc': { id: 'test_cbc', name: 'CBC Analyzer Reagent', kitCount: 100, expiryTimestamp: Date.now() + 90 * 24 * 3600 * 1000, isEssential: true },
+          'test_malaria': { id: 'test_malaria', name: 'Malaria RDT Kit', kitCount: 90, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: false },
+          'test_urine': { id: 'test_urine', name: 'Urine Dipstick Strip', kitCount: 80, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: false },
+          'test_hiv': { id: 'test_hiv', name: 'HIV Antibody Kit', kitCount: 70, expiryTimestamp: Date.now() + 120 * 24 * 3600 * 1000, isEssential: true },
+          'test_dengue': { id: 'test_dengue', name: 'Dengue NS1 Kit', kitCount: 110, expiryTimestamp: Date.now() + 90 * 24 * 3600 * 1000, isEssential: true },
+          'test_typhoid': { id: 'test_typhoid', name: 'Typhoid RDT Kit', kitCount: 75, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: false }
+        },
+        doctors: {
+          'doc_1': { id: 'doc_1', name: 'Dr. R. Koothrapali', status: 'PRESENT', absentDaysOfLast10: 1 },
+          'doc_2': { id: 'doc_2', name: 'Dr. Sheldon Cooper', status: 'PRESENT', absentDaysOfLast10: 0 },
+          'doc_3': { id: 'doc_3', name: 'Dr. Amy Fowler', status: 'PRESENT', absentDaysOfLast10: 1 },
+          'doc_4': { id: 'doc_4', name: 'Dr. Bernadette R.', status: 'PRESENT', absentDaysOfLast10: 2 }
+        },
+        footfall: { opdCount: 105, ipdCount: 20, total: 125 }
+      },
+      'center_4': {
+        id: 'center_4',
+        name: 'CHC Salt Lake (Kolkata)',
+        block: 'Bidhannagar',
+        district: 'North 24 Parganas',
+        region: 'EAST',
+        latitude: 22.5802,
+        longitude: 88.4116,
+        adminPhone: '+919876543213',
+        lastSync: Date.now() - 4 * 60 * 60 * 1000,
+        healthScores: { stock: 85, attendance: 40, test: 85, bed: 80, footfall: 85, overall: 75 },
+        beds: { capacity: 40, occupied: 8, available: 32 },
+        stocks: {
+          'med_paracetamol': { name: 'Paracetamol 500mg', currentStock: 90, bufferStock: 180, dailyBurnRate: 12 },
+          'med_ors': { name: 'ORS Packets', currentStock: 80, bufferStock: 200, dailyBurnRate: 8 },
+          'med_pregtest': { name: 'Pregnancy Test Kit', currentStock: 85, bufferStock: 100, dailyBurnRate: 4 },
+          'med_amoxicillin': { name: 'Amoxicillin 250mg', currentStock: 140, bufferStock: 200, dailyBurnRate: 10 },
+          'med_azithromycin': { name: 'Azithromycin 500mg', currentStock: 70, bufferStock: 100, dailyBurnRate: 5 },
+          'med_ibuprofen': { name: 'Ibuprofen 400mg', currentStock: 110, bufferStock: 150, dailyBurnRate: 7 },
+          'med_zinc': { name: 'Zinc Tablets 20mg', currentStock: 185, bufferStock: 250, dailyBurnRate: 12 }
+        },
+        tests: {
+          'test_glucose': { id: 'test_glucose', name: 'Glucose Test Kit', kitCount: 90, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: true },
+          'test_cbc': { id: 'test_cbc', name: 'CBC Analyzer Reagent', kitCount: 80, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: true },
+          'test_malaria': { id: 'test_malaria', name: 'Malaria RDT Kit', kitCount: 70, expiryTimestamp: Date.now() + 15 * 24 * 3600 * 1000, isEssential: false },
+          'test_urine': { id: 'test_urine', name: 'Urine Dipstick Strip', kitCount: 65, expiryTimestamp: Date.now() + 20 * 24 * 3600 * 1000, isEssential: false },
+          'test_hiv': { id: 'test_hiv', name: 'HIV Antibody Kit', kitCount: 45, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_dengue': { id: 'test_dengue', name: 'Dengue NS1 Kit', kitCount: 80, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: true },
+          'test_typhoid': { id: 'test_typhoid', name: 'Typhoid RDT Kit', kitCount: 60, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: false }
+        },
+        doctors: {
+          'doc_1': { id: 'doc_1', name: 'Dr. Subhash Chandra', status: 'ABSENT', absentDaysOfLast10: 6 },
+          'doc_2': { id: 'doc_2', name: 'Dr. Geeta Dutt', status: 'ABSENT', absentDaysOfLast10: 5 }
+        },
+        footfall: { opdCount: 70, ipdCount: 10, total: 80 }
+      },
+      'center_5': {
+        id: 'center_5',
+        name: 'PHC Hazratganj (Lucknow)',
+        block: 'Lucknow Central',
+        district: 'Lucknow',
+        region: 'NORTH',
+        latitude: 26.8467,
+        longitude: 80.9462,
+        adminPhone: '+919876543214',
+        lastSync: Date.now() - 5 * 60 * 1000,
+        healthScores: { stock: 80, attendance: 90, test: 88, bed: 90, footfall: 85, overall: 85 },
+        beds: { capacity: 20, occupied: 14, available: 6 },
+        stocks: {
+          'med_paracetamol': { name: 'Paracetamol 500mg', currentStock: 120, bufferStock: 150, dailyBurnRate: 10 },
+          'med_ors': { name: 'ORS Packets', currentStock: 90, bufferStock: 200, dailyBurnRate: 12 },
+          'med_pregtest': { name: 'Pregnancy Test Kit', currentStock: 95, bufferStock: 100, dailyBurnRate: 3 },
+          'med_amoxicillin': { name: 'Amoxicillin 250mg', currentStock: 160, bufferStock: 180, dailyBurnRate: 10 },
+          'med_azithromycin': { name: 'Azithromycin 500mg', currentStock: 85, bufferStock: 100, dailyBurnRate: 5 },
+          'med_ibuprofen': { name: 'Ibuprofen 400mg', currentStock: 130, bufferStock: 150, dailyBurnRate: 8 },
+          'med_zinc': { name: 'Zinc Tablets 20mg', currentStock: 210, bufferStock: 250, dailyBurnRate: 12 }
+        },
+        tests: {
+          'test_glucose': { id: 'test_glucose', name: 'Glucose Test Kit', kitCount: 100, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_cbc': { id: 'test_cbc', name: 'CBC Analyzer Reagent', kitCount: 85, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_malaria': { id: 'test_malaria', name: 'Malaria RDT Kit', kitCount: 60, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: false },
+          'test_urine': { id: 'test_urine', name: 'Urine Dipstick Strip', kitCount: 70, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: false },
+          'test_hiv': { id: 'test_hiv', name: 'HIV Antibody Kit', kitCount: 50, expiryTimestamp: Date.now() + 90 * 24 * 3600 * 1000, isEssential: true },
+          'test_dengue': { id: 'test_dengue', name: 'Dengue NS1 Kit', kitCount: 75, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_typhoid': { id: 'test_typhoid', name: 'Typhoid RDT Kit', kitCount: 55, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: false }
+        },
+        doctors: {
+          'doc_1': { id: 'doc_1', name: 'Dr. Akhilesh Yadav', status: 'PRESENT', absentDaysOfLast10: 1 },
+          'doc_2': { id: 'doc_2', name: 'Dr. Sunita Mishra', status: 'PRESENT', absentDaysOfLast10: 0 }
+        },
+        footfall: { opdCount: 85, ipdCount: 18, total: 103 }
+      },
+      'center_6': {
+        id: 'center_6',
+        name: 'PHC Alandur (Chennai)',
+        block: 'St. Thomas Mount',
+        district: 'Chennai',
+        region: 'SOUTH',
+        latitude: 12.9975,
+        longitude: 80.2006,
+        adminPhone: '+919876543210',
+        lastSync: Date.now() - 30 * 60 * 1000,
+        healthScores: { stock: 45, attendance: 50, test: 80, bed: 40, footfall: 80, overall: 56 },
+        beds: { capacity: 10, occupied: 8, available: 2 },
+        stocks: {
+          'med_paracetamol': { name: 'Paracetamol 500mg', currentStock: 8, bufferStock: 100, dailyBurnRate: 10 },
+          'med_ors': { name: 'ORS Packets', currentStock: 15, bufferStock: 100, dailyBurnRate: 5 },
+          'med_pregtest': { name: 'Pregnancy Test Kit', currentStock: 60, bufferStock: 100, dailyBurnRate: 2 },
+          'med_amoxicillin': { name: 'Amoxicillin 250mg', currentStock: 120, bufferStock: 150, dailyBurnRate: 8 },
+          'med_azithromycin': { name: 'Azithromycin 500mg', currentStock: 6, bufferStock: 80, dailyBurnRate: 4 },
+          'med_ibuprofen': { name: 'Ibuprofen 400mg', currentStock: 105, bufferStock: 120, dailyBurnRate: 6 },
+          'med_zinc': { name: 'Zinc Tablets 20mg', currentStock: 190, bufferStock: 200, dailyBurnRate: 12 }
+        },
+        tests: {
+          'test_glucose': { id: 'test_glucose', name: 'Glucose Test Kit', kitCount: 40, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: true },
+          'test_cbc': { id: 'test_cbc', name: 'CBC Analyzer Reagent', kitCount: 8, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: true },
+          'test_malaria': { id: 'test_malaria', name: 'Malaria RDT Kit', kitCount: 25, expiryTimestamp: Date.now() + 10 * 24 * 3600 * 1000, isEssential: false },
+          'test_urine': { id: 'test_urine', name: 'Urine Dipstick Strip', kitCount: 15, expiryTimestamp: Date.now() - 5 * 24 * 3600 * 1000, isEssential: false },
+          'test_hiv': { id: 'test_hiv', name: 'HIV Antibody Kit', kitCount: 5, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_dengue': { id: 'test_dengue', name: 'Dengue NS1 Kit', kitCount: 30, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: true },
+          'test_typhoid': { id: 'test_typhoid', name: 'Typhoid RDT Kit', kitCount: 4, expiryTimestamp: Date.now() + 15 * 24 * 3600 * 1000, isEssential: false }
+        },
+        doctors: {
+          'doc_1': { id: 'doc_1', name: 'Dr. Aravind Swamy', status: 'PRESENT', absentDaysOfLast10: 1 },
+          'doc_2': { id: 'doc_2', name: 'Dr. Priya Ranjan', status: 'ABSENT', absentDaysOfLast10: 5 },
+          'doc_3': { id: 'doc_3', name: 'Dr. Sanjay Sen', status: 'ABSENT', absentDaysOfLast10: 4 }
+        },
+        footfall: { opdCount: 48, ipdCount: 12, total: 60 }
+      },
+      'center_7': {
+        id: 'center_7',
+        name: 'PHC Guindy (Chennai)',
+        block: 'Sholinganallur',
+        district: 'Chennai',
+        region: 'SOUTH',
+        latitude: 13.0067,
+        longitude: 80.2206,
+        adminPhone: '+919876543211',
+        lastSync: Date.now() - 50 * 60 * 1000,
+        healthScores: { stock: 95, attendance: 90, test: 95, bed: 88, footfall: 95, overall: 93 },
+        beds: { capacity: 50, occupied: 44, available: 6 },
+        stocks: {
+          'med_paracetamol': { name: 'Paracetamol 500mg', currentStock: 150, bufferStock: 100, dailyBurnRate: 5 },
+          'med_ors': { name: 'ORS Packets', currentStock: 110, bufferStock: 100, dailyBurnRate: 4 },
+          'med_pregtest': { name: 'Pregnancy Test Kit', currentStock: 120, bufferStock: 100, dailyBurnRate: 3 },
+          'med_amoxicillin': { name: 'Amoxicillin 250mg', currentStock: 210, bufferStock: 150, dailyBurnRate: 6 },
+          'med_azithromycin': { name: 'Azithromycin 500mg', currentStock: 115, bufferStock: 80, dailyBurnRate: 3 },
+          'med_ibuprofen': { name: 'Ibuprofen 400mg', currentStock: 160, bufferStock: 120, dailyBurnRate: 5 },
+          'med_zinc': { name: 'Zinc Tablets 20mg', currentStock: 250, bufferStock: 200, dailyBurnRate: 10 }
+        },
+        tests: {
+          'test_glucose': { id: 'test_glucose', name: 'Glucose Test Kit', kitCount: 150, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_cbc': { id: 'test_cbc', name: 'CBC Analyzer Reagent', kitCount: 90, expiryTimestamp: Date.now() + 90 * 24 * 3600 * 1000, isEssential: true },
+          'test_malaria': { id: 'test_malaria', name: 'Malaria RDT Kit', kitCount: 80, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: false },
+          'test_urine': { id: 'test_urine', name: 'Urine Dipstick Strip', kitCount: 100, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: false },
+          'test_hiv': { id: 'test_hiv', name: 'HIV Antibody Kit', kitCount: 60, expiryTimestamp: Date.now() + 120 * 24 * 3600 * 1000, isEssential: true },
+          'test_dengue': { id: 'test_dengue', name: 'Dengue NS1 Kit', kitCount: 95, expiryTimestamp: Date.now() + 90 * 24 * 3600 * 1000, isEssential: true },
+          'test_typhoid': { id: 'test_typhoid', name: 'Typhoid RDT Kit', kitCount: 45, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: false }
+        },
+        doctors: {
+          'doc_1': { id: 'doc_1', name: 'Dr. K. Raghavan', status: 'PRESENT', absentDaysOfLast10: 0 },
+          'doc_2': { id: 'doc_2', name: 'Dr. Meera Bai', status: 'PRESENT', absentDaysOfLast10: 1 },
+          'doc_3': { id: 'doc_3', name: 'Dr. Thomas Alva', status: 'PRESENT', absentDaysOfLast10: 2 }
+        },
+        footfall: { opdCount: 110, ipdCount: 30, total: 140 }
+      },
+      'center_8': {
+        id: 'center_8',
+        name: 'CHC Tambaram (Chennai)',
+        block: 'Tambaram',
+        district: 'Chennai',
+        region: 'SOUTH',
+        latitude: 12.9229,
+        longitude: 80.1275,
+        adminPhone: '+919876543212',
+        lastSync: Date.now() - 2 * 60 * 60 * 1000,
+        healthScores: { stock: 90, attendance: 85, test: 90, bed: 30, footfall: 85, overall: 79 },
+        beds: { capacity: 30, occupied: 5, available: 25 },
+        stocks: {
+          'med_paracetamol': { name: 'Paracetamol 500mg', currentStock: 200, bufferStock: 100, dailyBurnRate: 8 },
+          'med_ors': { name: 'ORS Packets', currentStock: 130, bufferStock: 100, dailyBurnRate: 6 },
+          'med_pregtest': { name: 'Pregnancy Test Kit', currentStock: 140, bufferStock: 100, dailyBurnRate: 2 },
+          'med_amoxicillin': { name: 'Amoxicillin 250mg', currentStock: 250, bufferStock: 150, dailyBurnRate: 7 },
+          'med_azithromycin': { name: 'Azithromycin 500mg', currentStock: 160, bufferStock: 80, dailyBurnRate: 4 },
+          'med_ibuprofen': { name: 'Ibuprofen 400mg', currentStock: 190, bufferStock: 120, dailyBurnRate: 6 },
+          'med_zinc': { name: 'Zinc Tablets 20mg', currentStock: 280, bufferStock: 200, dailyBurnRate: 11 }
+        },
+        tests: {
+          'test_glucose': { id: 'test_glucose', name: 'Glucose Test Kit', kitCount: 120, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: true },
+          'test_cbc': { id: 'test_cbc', name: 'CBC Analyzer Reagent', kitCount: 100, expiryTimestamp: Date.now() + 90 * 24 * 3600 * 1000, isEssential: true },
+          'test_malaria': { id: 'test_malaria', name: 'Malaria RDT Kit', kitCount: 90, expiryTimestamp: Date.now() + 30 * 24 * 3600 * 1000, isEssential: false },
+          'test_urine': { id: 'test_urine', name: 'Urine Dipstick Strip', kitCount: 80, expiryTimestamp: Date.now() + 45 * 24 * 3600 * 1000, isEssential: false },
+          'test_hiv': { id: 'test_hiv', name: 'HIV Antibody Kit', kitCount: 70, expiryTimestamp: Date.now() + 120 * 24 * 3600 * 1000, isEssential: true },
+          'test_dengue': { id: 'test_dengue', name: 'Dengue NS1 Kit', kitCount: 110, expiryTimestamp: Date.now() + 90 * 24 * 3600 * 1000, isEssential: true },
+          'test_typhoid': { id: 'test_typhoid', name: 'Typhoid RDT Kit', kitCount: 75, expiryTimestamp: Date.now() + 60 * 24 * 3600 * 1000, isEssential: false }
+        },
+        doctors: {
+          'doc_1': { id: 'doc_1', name: 'Dr. R. Koothrapali', status: 'PRESENT', absentDaysOfLast10: 1 },
+          'doc_2': { id: 'doc_2', name: 'Dr. Sheldon Cooper', status: 'PRESENT', absentDaysOfLast10: 0 },
+          'doc_3': { id: 'doc_3', name: 'Dr. Amy Fowler', status: 'PRESENT', absentDaysOfLast10: 1 },
+          'doc_4': { id: 'doc_4', name: 'Dr. Bernadette R.', status: 'PRESENT', absentDaysOfLast10: 2 }
+        },
+        footfall: { opdCount: 95, ipdCount: 25, total: 120 }
+      }
+    };
+
+    let alerts = [
+      {
+        id: 'DG-center_2',
+        centerId: 'center_2',
+        type: 'DATA_GAP',
+        title: '⚠️ DATA GAP WARNING',
+        desc: 'No stock entry received in 24h. Last Sync: 26 hours ago.',
+        action: 'Contact CHC Bandra Admin to update stock',
+        urgency: 3
+      },
+      {
+        id: 'ST-RED-center_1-med_paracetamol',
+        centerId: 'center_1',
+        type: 'RED',
+        title: '🔴 STOCK CRITICAL',
+        desc: 'Medicine: Paracetamol 500mg | Current: 8 units | Buffer: 150 units (0.5 days left)',
+        action: 'Transfer 120 units from CHC Bandra',
+        urgency: 4
+      },
+      {
+        id: 'BD-RED-center_6',
+        centerId: 'center_6',
+        type: 'RED',
+        title: '🔴 BEDS CRITICAL: FULL',
+        desc: 'Occupancy: 80% (8/10). Status: REDIRECT PATIENTS.',
+        action: 'Redirect to PHC Guindy (6 beds free)',
+        urgency: 4
+      }
+    ];
+
+    let transferOrders = [
+      {
+        id: '101',
+        date: '2026-06-25',
+        fromCenterId: 'center_2',
+        fromCenterName: 'CHC Bandra (Mumbai)',
+        toCenterId: 'center_3',
+        toCenterName: 'PHC Indiranagar (Bengaluru)',
+        medicineId: 'med_paracetamol',
+        medicineName: 'Paracetamol 500mg',
+        qty: 120,
+        distance: 980.5,
+        time: 1400,
+        status: 'PENDING'
+      },
+      {
+        id: '102',
+        date: '2026-06-25',
+        fromCenterId: 'center_1',
+        fromCenterName: 'PHC Dwarka (Delhi)',
+        toCenterId: 'center_5',
+        toCenterName: 'PHC Hazratganj (Lucknow)',
+        medicineId: 'med_ors',
+        medicineName: 'ORS Packets',
+        qty: 300,
+        distance: 530.2,
+        time: 720,
+        status: 'PENDING'
+      },
+      {
+        id: '103',
+        date: '2026-06-25',
+        fromCenterId: 'center_4',
+        fromCenterName: 'CHC Salt Lake (Kolkata)',
+        toCenterId: 'center_3',
+        toCenterName: 'PHC Indiranagar (Bengaluru)',
+        medicineId: 'med_amoxicillin',
+        medicineName: 'Amoxicillin 250mg',
+        qty: 150,
+        distance: 1870.0,
+        time: 2100,
+        status: 'SHIPPED',
+        remainingTicks: 2
+      },
+      {
+        id: '104',
+        date: '2026-06-26',
+        fromCenterId: 'center_2',
+        fromCenterName: 'CHC Bandra (Mumbai)',
+        toCenterId: 'center_5',
+        toCenterName: 'PHC Hazratganj (Lucknow)',
+        medicineId: 'med_zinc',
+        medicineName: 'Zinc Tablets 20mg',
+        qty: 200,
+        distance: 1350.0,
+        time: 1600,
+        status: 'DELIVERED',
+        remainingTicks: 0
+      }
+    ];
+
+    let auditLog = [
+      { id: 'a1', timestamp: new Date().toISOString().substring(0, 10) + ' 10:30', userId: 'SYS', action: 'Weekly Center Health Scores computed' },
+      { id: 'a2', timestamp: new Date().toISOString().substring(0, 10) + ' 18:00', userId: 'SYS', action: 'Daily footfall analysis execution' }
+    ];
+
+    let demandForecasts = {};
+
+    // Voice query samples
+    const voiceSampleQueries = [
+      {
+        lang: 'Hindi',
+        text: 'ORS पैकेट कितने बचे हैं? (How many ORS packets left?)',
+        transcript: 'ORS packets left at PHC Alandur',
+        response: `┌─────────────────────────────────────────────┐\n│ 🟡 STOCK WARNING                            │\n│ Center: PHC Alandur | Block: St. Thomas Mou │\n│ Medicine: ORS Packets | Current: 15 units   │\n│ Buffer needed: 100 units                    │\n│ Days to stock-out: 3.0 days                 │\n│ Action: raise procurement order             │\n└─────────────────────────────────────────────┘\n\n[Voice output - Hindi]: प्राथमिक स्वास्थ्य केंद्र अलंदूर में १५ ओआरएस पैकेट बचे हैं। यह बफर स्टॉक से कम है, कृपया नया खरीद ऑर्डर जारी करें।`
+      },
+      {
+        lang: 'Tamil',
+        text: 'பாராசிட்டமால் மாத்திரைகள் எவ்வளவு உள்ளது? (How much Paracetamol?)',
+        transcript: 'Paracetamol stock level at PHC Alandur',
+        response: `┌─────────────────────────────────────────────┐\n│ 🔴 STOCK CRITICAL                           │\n│ Center: PHC Alandur | Block: St. Thomas Mou │\n│ Medicine: Paracetamol 500mg | Current: 8 un │\n│ Buffer needed: 100 units                    │\n│ Days to stock-out: 0.8 days                 │\n│ Action: Transfer 92 units from CHC Tambaram │\n└─────────────────────────────────────────────┘\n\n[Voice output - Tamil]: அலந்தூர் மையத்தில் பாராசிட்டமால் இருப்பு மிகக் குறைவாக உள்ளது (8 மாத்திரைகள்). தாம்பரம் மையத்தில் இருந்து மாற்றுவதற்கு பரிந்துரைக்கப்படுகிறது.`
+      },
+      {
+        lang: 'Telugu',
+        text: 'ఇక్కడ ఎన్ని బెడ్లు ఖాళీగా ఉన్నాయి? (How many free beds here?)',
+        transcript: 'Bed capacity status at CHC Tambaram',
+        response: `┌─────────────────────────────────────────────┐\n│ 🟡 BEDS UNDERUTILIZATION AUDIT              │\n│ Center: CHC Tambaram | Block: Tambaram      │\n│ Occupancy: <30% for 7 consecutive days      │\n│ Status: UNDERUTILIZED                       │\n│ Action: Flag for resources audit            │\n└─────────────────────────────────────────────┘\n\n[Voice output - Telugu]: తాంబరం సామాజిక ఆరోగ్య కేంద్రంలో ప్రస్తుతం ఇరవై ఐదు బెడ్లు ఖాళీగా ఉన్నాయి. వినియోగం గత వారం నుండి ముప్పై శాతం కంటే తక్కువగా ఉంది.`
+      }
+    ];
+
+    // Helper: evaluate alerts
+    function evaluateAlerts() {
+      const now = Date.now();
+      
+      // Keep only manual data gap center_2 alert if sync is old
+      const freshAlerts = [];
+      
+      // Re-evaluate alerts for all centers
+      Object.values(centers).forEach(c => {
+        const centerId = c.id;
+        const centerName = c.name;
+        const blockName = c.block;
+
+        // Data gap check
+        if (now - c.lastSync > 24 * 60 * 60 * 1000) {
+          freshAlerts.push({
+            id: `DG-${centerId}`,
+            centerId,
+            type: 'DATA_GAP',
+            title: '⚠️ DATA GAP WARNING',
+            desc: `No updates received in 24h. Last Sync: ${Math.floor((now - c.lastSync)/(3600*1000))}h ago.`,
+            action: 'Contact Center Admin to update stock',
+            urgency: 3
+          });
+        }
+
+        // Bed Alerts
+        const occupancyRate = c.beds.occupied / c.beds.capacity;
+        if (occupancyRate >= 1.0) {
+          freshAlerts.push({
+            id: `BD-RED-${centerId}`,
+            centerId,
+            type: 'RED',
+            title: '🔴 BEDS CRITICAL: FULL',
+            desc: `Occupancy: 100% (${c.beds.occupied}/${c.beds.capacity}). Status: REDIRECT PATIENTS NOW.`,
+            action: 'Redirect to PHC Guindy (6 beds free)',
+            urgency: 4
+          });
+        } else if (occupancyRate >= 0.85) {
+          freshAlerts.push({
+            id: `BD-YELLOW-${centerId}`,
+            centerId,
+            type: 'YELLOW',
+            title: '🟡 BEDS WARNING: NEAR FULL',
+            desc: `Occupancy: ${Math.round(occupancyRate * 100)}% (${c.beds.occupied}/${c.beds.capacity}). Status: MONITOR CLOSELY.`,
+            action: 'Alert district for coordination',
+            urgency: 2
+          });
+        } else if (occupancyRate < 0.30) {
+          freshAlerts.push({
+            id: `BD-LOW-${centerId}`,
+            centerId,
+            type: 'UNDERUTILIZED',
+            title: '🟡 BEDS UNDERUTILIZATION AUDIT',
+            desc: `Occupancy: <30% (${c.beds.occupied}/${c.beds.capacity}). Status: UNDERUTILIZED.`,
+            action: 'Flag for resources audit',
+            urgency: 1
+          });
+        }
+
+        // Stock Alerts
+        Object.entries(c.stocks).forEach(([medId, med]) => {
+          const buffer = med.bufferStock;
+          const current = med.currentStock;
+          const redLimit = 0.1 * buffer;
+          const yellowLimit = 0.2 * buffer;
+
+          if (current < redLimit) {
+            freshAlerts.push({
+              id: `ST-RED-${centerId}-${medId}`,
+              centerId,
+              type: 'RED',
+              title: '🔴 STOCK CRITICAL',
+              desc: `Medicine: ${med.name} | Current: ${current} units | Buffer: ${buffer} units (${(current/(med.dailyBurnRate||1)).toFixed(1)} days left)`,
+              action: 'Redistribute from surplus or raise urgent procurement',
+              urgency: 4
+            });
+          } else if (current < yellowLimit) {
+            freshAlerts.push({
+              id: `ST-YELLOW-${centerId}-${medId}`,
+              centerId,
+              type: 'YELLOW',
+              title: '🟡 STOCK WARNING',
+              desc: `Medicine: ${med.name} | Current: ${current} units | Buffer: ${buffer} units`,
+              action: 'raise procurement order',
+              urgency: 2
+            });
+          }
+        });
+
+        // Attendance Alerts
+        const docs = Object.values(c.doctors);
+        const totalDocs = docs.length;
+        const presentDocs = docs.filter(d => d.status === 'PRESENT').length;
+        const staffPct = totalDocs > 0 ? presentDocs / totalDocs : 1.0;
+        
+        if (presentDocs === 0 && c.footfall.total > 50) {
+          freshAlerts.push({
+            id: `AT-RED-${centerId}`,
+            centerId,
+            type: 'RED',
+            title: '🔴 ATTENDANCE: CRITICAL EMERGENCY',
+            desc: `Critical: 0 doctors present for ${c.footfall.total} active patients today.`,
+            action: 'Deploy emergency medical officer',
+            urgency: 4
+          });
+        } else if (staffPct < 0.50) {
+          freshAlerts.push({
+            id: `AT-YELLOW-${centerId}`,
+            centerId,
+            type: 'YELLOW',
+            title: '🟡 ATTENDANCE: UNDERSTAFFED',
+            desc: `Understaffed: Only ${presentDocs}/${totalDocs} doctors present today (${Math.round(staffPct * 100)}%).`,
+            action: 'Raise staff replacement request',
+            urgency: 2
+          });
+        }
+
+        // Test kits alerts
+        let unavailableEssentialTests = [];
+        let basicTestsShortCount = 0;
+        Object.entries(c.tests).forEach(([testId, test]) => {
+          const isExpired = test.expiryTimestamp < now;
+          const isShort = test.kitCount < 10 || isExpired;
+          
+          if (isShort) {
+            basicTestsShortCount++;
+            if (test.isEssential) {
+              unavailableEssentialTests.push(test.name);
+            }
+            freshAlerts.push({
+              id: `TS-LOW-${centerId}-${testId}`,
+              centerId,
+              type: 'YELLOW',
+              title: '🟡 DIAGNOSTIC WARNING: KIT SHORTAGE',
+              desc: `Test: ${test.name} | Kits: ${test.kitCount} | Status: ${isExpired ? 'EXPIRED' : 'LOW STOCK'}`,
+              action: 'raise procurement order',
+              urgency: 2
+            });
+          }
+        });
+
+        if (unavailableEssentialTests.length > 0) {
+          freshAlerts.push({
+            id: `TS-RED-${centerId}`,
+            centerId,
+            type: 'RED',
+            title: '🔴 DIAGNOSTIC BLOCKED: ESSENTIAL GAPS',
+            desc: `Blocked essential tests: ${unavailableEssentialTests.join(', ')}.`,
+            action: 'Immediate kit dispatch required',
+            urgency: 4
+          });
+        }
+        if (basicTestsShortCount >= 3) {
+          freshAlerts.push({
+            id: `TS-MOBILE-${centerId}`,
+            centerId,
+            type: 'YELLOW',
+            title: '🟡 MOBILE DIAGNOSTIC RECOMMENDATION',
+            desc: `3+ basic tests unavailable/short at this center.`,
+            action: 'Deploy Mobile Diagnostic Unit in 24 hours',
+            urgency: 3
+          });
+        }
+      });
+
+      // Preserve hand-triggered outbreak alerts
+      alerts.forEach(a => {
+        if (a.id.includes('FF-OUTBREAK') && !freshAlerts.some(fa => fa.id === a.id)) {
+          freshAlerts.push(a);
+        }
+      });
+
+      alerts = freshAlerts;
+    }
+
+    // Helper: Vertex AI demand forecasting
+    function computeForecasts() {
+      Object.values(centers).forEach(c => {
+        demandForecasts[c.id] = {};
+        Object.entries(c.stocks).forEach(([medId, med]) => {
+          let pctIncrease = 15;
+          if (medId === 'med_ors') {
+            pctIncrease = 35;
+          } else if (medId === 'med_zinc') {
+            pctIncrease = 25;
+          } else if (medId === 'med_amoxicillin') {
+            pctIncrease = 20;
+          }
+          const current = med.currentStock;
+          const avgMonthlyDemand = med.dailyBurnRate * 30;
+          const predictedDemand = Math.round(avgMonthlyDemand * (1 + pctIncrease / 100));
+          const shortfallDays = Math.round(current / (med.dailyBurnRate || 1));
+          const recommendedProcurement = Math.max(0, predictedDemand - current);
+
+          let matchedPattern = "Seasonal OPD Footfall Increase";
+          let reason = "OPD registration trends point to a steady 15% increase in generic respiratory and viral cases.";
+          let confidenceScore = Math.floor(90 + (c.name.charCodeAt(0) + medId.charCodeAt(medId.length - 1)) % 8);
+
+          if (medId === 'med_ors') {
+            matchedPattern = "Monsoon Diarrhea Peak Risk";
+            reason = "Vertex AI predicted 35% spike due to rainy weather, humidity, and water-borne pathogens.";
+          } else if (medId === 'med_paracetamol') {
+            matchedPattern = "Flu Season Surge Pattern";
+            reason = "Rolling 3-year historical baseline shows a surge in seasonal influenza during summer-monsoon transitions.";
+          } else if (medId === 'med_amoxicillin' || medId === 'med_azithromycin') {
+            matchedPattern = "Bacterial Infection Spike";
+            reason = "AI models predict a rise in secondary respiratory tract infections following local rainfall trends.";
+          } else if (medId === 'med_zinc') {
+            matchedPattern = "WHO Diarrhea Protocol Co-Prescription";
+            reason = "Co-administered with ORS as WHO recommended protocol for pediatric diarrhea during monsoon outbreaks.";
+          }
+
+          demandForecasts[c.id][medId] = {
+            predictedDemand,
+            shortfallDays,
+            recommendedProcurement,
+            pctIncrease,
+            confidenceScore,
+            matchedPattern,
+            reason
+          };
+        });
+      });
+    }
+
+    // Helper: auto redistribution
+    function autoRedistribute() {
+      const surplusPool = {};
+      const deficitPool = {};
+
+      Object.values(centers).forEach(c => {
+        Object.entries(c.stocks).forEach(([medId, med]) => {
+          const buffer = med.bufferStock;
+          const current = med.currentStock;
+          const burnRate = med.dailyBurnRate || 5;
+
+          if (current > 1.3 * buffer) {
+            if (!surplusPool[medId]) surplusPool[medId] = [];
+            surplusPool[medId].push({ centerId: c.id, centerName: c.name, qty: current - buffer });
+          } else if (current < 0.2 * buffer) {
+            if (!deficitPool[medId]) deficitPool[medId] = [];
+            deficitPool[medId].push({ centerId: c.id, centerName: c.name, qty: buffer - current, daysToStockOut: current / burnRate });
+          }
+        });
+      });
+
+      Object.keys(deficitPool).forEach(medId => {
+        const deficits = deficitPool[medId];
+        const surpluses = surplusPool[medId] || [];
+        if (surpluses.length === 0) return;
+
+        deficits.sort((a, b) => a.daysToStockOut - b.daysToStockOut);
+        surpluses.sort((a, b) => b.qty - a.qty);
+
+        deficits.forEach(def => {
+          if (surpluses.length === 0) return;
+          const bestSurplus = surpluses[0];
+          const transferQty = Math.min(def.qty, bestSurplus.qty);
+          if (transferQty <= 10) return;
+
+          const exists = transferOrders.some(o => 
+            o.status === 'PENDING' && 
+            o.fromCenterId === bestSurplus.centerId && 
+            o.toCenterId === def.centerId && 
+            o.medicineId === medId
+          );
+
+          if (!exists) {
+            const orderId = `TRF-${Math.floor(100 + Math.random() * 900)}`;
+            transferOrders.push({
+              id: orderId,
+              date: new Date().toISOString().substring(0, 10),
+              fromCenterId: bestSurplus.centerId,
+              fromCenterName: bestSurplus.centerName,
+              toCenterId: def.centerId,
+              toCenterName: def.centerName,
+              medicineId: medId,
+              medicineName: centers[def.centerId].stocks[medId].name,
+              qty: Math.round(transferQty),
+              distance: parseFloat((5 + Math.random() * 8).toFixed(1)),
+              time: Math.round(10 + Math.random() * 20),
+              status: 'PENDING',
+              remainingTicks: 3
+            });
+            bestSurplus.qty -= transferQty;
+            if (bestSurplus.qty <= 0) surpluses.shift();
+          }
+        });
+      });
+    }
+
+    // Auth and Session Managers
+    let isAuthenticated = false;
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const u = document.getElementById('login-username').value.trim().toLowerCase();
+      const p = document.getElementById('login-password').value;
+      const errorDiv = document.getElementById('login-error');
+      
+      if (u === 'district' && p === 'officerpass') {
+        isAuthenticated = true;
+        currentRole = 'DISTRICT_OFFICER';
+        selectedCenterId = null;
+      } else if (u === 'admin' && p === 'adminpass') {
+        isAuthenticated = true;
+        currentRole = 'CENTER_ADMIN';
+        selectedCenterId = 'center_1';
+        activeCenterAdminId = 'center_1';
+      } else if (u === 'worker' && p === 'workerpass') {
+        isAuthenticated = true;
+        currentRole = 'FIELD_WORKER';
+        selectedCenterId = 'center_1';
+        activeWorkerCenterId = 'center_1';
+      } else {
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      errorDiv.style.display = 'none';
+      document.getElementById('login-portal').style.display = 'none';
+      document.querySelector('.app-container').style.display = 'block';
+      
+      // Update header role indicator
+      const headerRoleText = document.getElementById('header-role-text');
+      if (headerRoleText) {
+        headerRoleText.innerText = currentRole.toLowerCase().replace('_', ' ');
+      }
+      
+      // Sync selector values
+      updateSelectValue('center-selector', selectedCenterId);
+      
+      // Initialize view
+      setRole(currentRole);
+    }
+    
+    function logout() {
+      isAuthenticated = false;
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-portal').style.display = 'flex';
+      document.querySelector('.app-container').style.display = 'none';
+    }
+
+    // Role switcher
+    function setRole(role) {
+      currentRole = role;
+      
+      // Update role indicator in header
+      const headerRoleText = document.getElementById('header-role-text');
+      if (headerRoleText) {
+        headerRoleText.innerText = role.toLowerCase().replace('_', ' ');
+      }
+      
+      const views = ['view-district', 'view-admin', 'view-worker'];
+      views.forEach(v => {
+        const el = document.getElementById(v);
+        if (el) el.classList.add('hidden');
+      });
+      
+      const selectContainer = document.getElementById('center-select-container');
+      if (selectContainer) selectContainer.classList.add('hidden');
+
+      const roleTitle = document.getElementById('role-title');
+
+      if (role === 'DISTRICT_OFFICER') {
+        const viewDist = document.getElementById('view-district');
+        if (viewDist) viewDist.classList.remove('hidden');
+        if (roleTitle) roleTitle.innerText = 'National Operations Command Center';
+        selectedCenterId = null;
+        renderDistrictDashboard();
+      } else if (role === 'CENTER_ADMIN') {
+        const viewAdmin = document.getElementById('view-admin');
+        if (viewAdmin) viewAdmin.classList.remove('hidden');
+        if (selectContainer) selectContainer.classList.remove('hidden');
+        selectedCenterId = activeCenterAdminId;
+        updateSelectValue('center-selector', selectedCenterId);
+        if (roleTitle) {
+          const c = centers[selectedCenterId];
+          roleTitle.innerText = 'Center Dashboard: ' + (c ? c.name : 'Unknown Center');
+        }
+        renderCenterAdminDashboard();
+      } else if (role === 'FIELD_WORKER') {
+        const viewWorker = document.getElementById('view-worker');
+        if (viewWorker) viewWorker.classList.remove('hidden');
+        if (selectContainer) selectContainer.classList.remove('hidden');
+        selectedCenterId = activeWorkerCenterId;
+        updateSelectValue('center-selector', selectedCenterId);
+        if (roleTitle) {
+          const c = centers[selectedCenterId];
+          roleTitle.innerText = 'Field Worker Mobile Console: ' + (c ? c.name : 'Unknown Center');
+        }
+        renderFieldWorkerDashboard();
+      }
+    }
+
+    function onCenterSelectChange(val) {
+      selectedCenterId = val;
+      const roleTitle = document.getElementById('role-title');
+      if (currentRole === 'CENTER_ADMIN') {
+        activeCenterAdminId = val;
+        if (roleTitle) roleTitle.innerText = 'Center Dashboard: ' + centers[val].name;
+        renderCenterAdminDashboard();
+      } else if (currentRole === 'FIELD_WORKER') {
+        activeWorkerCenterId = val;
+        if (roleTitle) roleTitle.innerText = 'Field Worker Mobile Console: ' + centers[val].name;
+        renderFieldWorkerDashboard();
+      }
+    }
+
+    // Tab Switchers
+    function setDistrictTab(tab) {
+      activeDistrictTab = tab;
+      document.getElementById('dist-tab-rankings-btn').classList.remove('active');
+      document.getElementById('dist-tab-staff-btn').classList.remove('active');
+      document.getElementById('dist-tab-forecast-btn').classList.remove('active');
+      
+      document.getElementById('dist-tab-rankings').classList.add('hidden');
+      document.getElementById('dist-tab-staff').classList.add('hidden');
+      document.getElementById('dist-tab-forecast').classList.add('hidden');
+
+      if (tab === 'rankings') {
+        document.getElementById('dist-tab-rankings-btn').classList.add('active');
+        document.getElementById('dist-tab-rankings').classList.remove('hidden');
+      } else if (tab === 'staff') {
+        document.getElementById('dist-tab-staff-btn').classList.add('active');
+        document.getElementById('dist-tab-staff').classList.remove('hidden');
+      } else if (tab === 'forecast') {
+        document.getElementById('dist-tab-forecast-btn').classList.add('active');
+        document.getElementById('dist-tab-forecast').classList.remove('hidden');
+      }
+      renderDistrictDashboard();
+    }
+
+    function setAdminTab(tab) {
+      activeAdminTab = tab;
+      document.getElementById('admin-tab-stock-btn').classList.remove('active');
+      document.getElementById('admin-tab-staff-btn').classList.remove('active');
+      document.getElementById('admin-tab-labs-btn').classList.remove('active');
+      document.getElementById('admin-tab-forecast-btn').classList.remove('active');
+
+      document.getElementById('admin-tab-stock').classList.add('hidden');
+      document.getElementById('admin-tab-staff').classList.add('hidden');
+      document.getElementById('admin-tab-labs').classList.add('hidden');
+      document.getElementById('admin-tab-forecast').classList.add('hidden');
+
+      if (tab === 'stock') {
+        document.getElementById('admin-tab-stock-btn').classList.add('active');
+        document.getElementById('admin-tab-stock').classList.remove('hidden');
+      } else if (tab === 'staff') {
+        document.getElementById('admin-tab-staff-btn').classList.add('active');
+        document.getElementById('admin-tab-staff').classList.remove('hidden');
+      } else if (tab === 'labs') {
+        document.getElementById('admin-tab-labs-btn').classList.add('active');
+        document.getElementById('admin-tab-labs').classList.remove('hidden');
+      } else if (tab === 'forecast') {
+        document.getElementById('admin-tab-forecast-btn').classList.add('active');
+        document.getElementById('admin-tab-forecast').classList.remove('hidden');
+      }
+      renderCenterAdminDashboard();
+    }
+
+    function onRegionChange(val) {
+      selectedRegion = val;
+      renderDistrictDashboard();
+    }
+
+    // Render logic for District Officer
+    function renderDistrictDashboard() {
+      // Filter data based on selectedRegion
+      const filteredCenters = selectedRegion === 'ALL'
+        ? Object.values(centers)
+        : Object.values(centers).filter(c => c.region === selectedRegion);
+
+      const filteredCenterIds = filteredCenters.map(c => c.id);
+
+      const filteredAlerts = alerts.filter(a => filteredCenterIds.includes(a.centerId));
+      const redCount = filteredAlerts.filter(a => a.type === 'RED').length;
+      const yellowCount = filteredAlerts.filter(a => a.type === 'YELLOW').length;
+      const gapCount = filteredAlerts.filter(a => a.type === 'DATA_GAP').length;
+
+      document.getElementById('summary-critical').innerText = redCount;
+      document.getElementById('summary-warning').innerText = yellowCount;
+      document.getElementById('summary-datagap').innerText = gapCount;
+
+      const centersCountIndicator = document.getElementById('summary-centers-count');
+      if (centersCountIndicator) {
+        centersCountIndicator.innerText = `${filteredCenters.length} / ${Object.keys(centers).length}`;
+      }
+
+      // Render Region Labels on map
+      const regionLabelsGroup = document.getElementById('map-region-labels-group');
+      if (regionLabelsGroup) {
+        regionLabelsGroup.innerHTML = '';
+        const regionLabels = [
+          { name: 'NORTH UNIT', x: 175, y: 70, id: 'NORTH' },
+          { name: 'WEST UNIT', x: 95, y: 195, id: 'WEST' },
+          { name: 'SOUTH UNIT', x: 175, y: 295, id: 'SOUTH' },
+          { name: 'EAST UNIT', x: 275, y: 180, id: 'EAST' }
+        ];
+        regionLabels.forEach(lbl => {
+          const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          txt.setAttribute('x', lbl.x.toString());
+          txt.setAttribute('y', lbl.y.toString());
+          txt.setAttribute('text-anchor', 'middle');
+          txt.setAttribute('fill', selectedRegion === lbl.id ? 'var(--neon-blue)' : 'rgba(255, 255, 255, 0.15)');
+          txt.style.fontSize = '8px';
+          txt.style.fontWeight = '700';
+          txt.style.transition = 'fill 0.3s ease';
+          txt.textContent = lbl.name;
+          regionLabelsGroup.appendChild(txt);
+        });
+      }
+
+      // 2. Map Pins
+      const pinsContainer = document.getElementById('map-pins-container');
+      pinsContainer.innerHTML = '';
+      Object.values(centers).forEach(c => {
+        // Custom positions on map based on India lat/lng scaling
+        // Longitude 68 to 98 maps to X 60 to 340
+        // Latitude 8 to 36 maps to Y 340 to 40
+        const x = 60 + ((c.longitude - 68) / 30) * 280;
+        const y = 340 - ((c.latitude - 8) / 28) * 300;
+        
+        let color = 'var(--neon-green)';
+        if (c.healthScores.overall < 60) color = 'var(--neon-red)';
+        else if (c.healthScores.overall < 80) color = 'var(--neon-amber)';
+
+        const isSelected = selectedCenterId === c.id;
+        const isInRegion = selectedRegion === 'ALL' || c.region === selectedRegion;
+        
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'map-pin');
+        g.style.transition = 'opacity 0.3s ease';
+        g.style.opacity = isInRegion ? '1' : '0.08';
+        g.style.pointerEvents = isInRegion ? 'auto' : 'none';
+        g.style.cursor = isInRegion ? 'pointer' : 'default';
+
+        g.onclick = () => {
+          if (!isInRegion) return;
+          selectedCenterId = isSelected ? null : c.id;
+          renderDistrictDashboard();
+          showMapDetail(selectedCenterId);
+        };
+
+        const circ1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circ1.setAttribute('cx', x);
+        circ1.setAttribute('cy', y);
+        circ1.setAttribute('r', isSelected ? '14' : '9');
+        circ1.setAttribute('fill', color);
+        circ1.setAttribute('opacity', '0.3');
+
+        const circ2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circ2.setAttribute('cx', x);
+        circ2.setAttribute('cy', y);
+        circ2.setAttribute('r', isSelected ? '8' : '5');
+        circ2.setAttribute('fill', color);
+
+        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', x);
+        txt.setAttribute('y', y - (isSelected ? 18 : 12));
+        txt.setAttribute('class', 'pin-label');
+        txt.setAttribute('fill', 'white');
+        txt.textContent = `${c.name} (${c.healthScores.overall})`;
+
+        g.appendChild(circ1);
+        g.appendChild(circ2);
+        g.appendChild(txt);
+        pinsContainer.appendChild(g);
+      });
+
+      // 3. Rankings Table
+      const rBody = document.getElementById('rankings-table-body');
+      rBody.innerHTML = '';
+      filteredCenters
+        .sort((a, b) => b.healthScores.overall - a.healthScores.overall)
+        .forEach((c, idx) => {
+          let badgeClass = 'good';
+          let badgeText = 'PERFORMING WELL';
+          if (c.healthScores.overall < 60) {
+            badgeClass = 'critical';
+            badgeText = 'INTERVENTION REQUIRED';
+          } else if (c.healthScores.overall < 80) {
+            badgeClass = 'warning';
+            badgeText = 'NEEDS ATTENTION';
+          }
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td style="font-weight: 500;">${c.name}</td>
+            <td>${c.block}</td>
+            <td style="font-weight: 600;">${c.healthScores.overall} / 100</td>
+            <td><span class="health-badge ${badgeClass}">${badgeText}</span></td>
+            <td style="color: ${c.healthScores.overall < 60 ? 'var(--neon-red)' : 'var(--text-secondary)'};">
+              ${c.healthScores.overall < 60 ? 'Deploy support/audit' : 'Routine monitoring'}
+            </td>
+          `;
+          rBody.appendChild(tr);
+        });
+
+      // 4. District Staffing & Labs (Tab 2)
+      const sBody = document.getElementById('dist-staff-table-body');
+      sBody.innerHTML = '';
+      filteredCenters.forEach(c => {
+        const docs = Object.values(c.doctors);
+        const present = docs.filter(d => d.status === 'PRESENT').length;
+        const total = docs.length;
+        
+        let staffBadge = 'good';
+        let staffText = 'NORMAL';
+        if (present === 0) {
+          staffBadge = 'critical';
+          staffText = 'CRITICAL EMERGENCY';
+        } else if (present / total < 0.50) {
+          staffBadge = 'warning';
+          staffText = 'UNDERSTAFFED';
+        }
+
+        let essentialGaps = [];
+        let kitShortages = [];
+        Object.values(c.tests).forEach(t => {
+          if (t.kitCount < 10 || t.expiryTimestamp < Date.now()) {
+            if (t.isEssential) essentialGaps.push(t.name);
+            else kitShortages.push(t.name);
+          }
+        });
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 500;">${c.name}</td>
+          <td>${present} / ${total} Present</td>
+          <td><span class="health-badge ${staffBadge}">${staffText}</span></td>
+          <td style="color: var(--neon-red); font-weight: 600;">${essentialGaps.length > 0 ? essentialGaps.join(', ') : 'None'}</td>
+          <td style="color: var(--neon-amber);">${kitShortages.length > 0 ? kitShortages.join(', ') : 'None'}</td>
+        `;
+        sBody.appendChild(tr);
+      });
+
+      // 5. AI Demand Forecasts & Supply Chain (Tab 3)
+      const fBody = document.getElementById('dist-forecast-table-body');
+      fBody.innerHTML = '';
+      filteredCenters.forEach(c => {
+        Object.entries(c.stocks).forEach(([medId, med]) => {
+          const forecast = demandForecasts[c.id] ? demandForecasts[c.id][medId] : { predictedDemand: 0, recommendedProcurement: 0, shortfallDays: 0, pctIncrease: 15 };
+          const shortfallColor = forecast.shortfallDays < 5 ? 'var(--neon-red)' : forecast.shortfallDays < 15 ? 'var(--neon-amber)' : 'var(--neon-green)';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <div>${c.name}</div>
+              <div style="font-size: 10px; color: var(--neon-blue); font-weight: 600;">Confidence: ${forecast.confidenceScore || 92}%</div>
+            </td>
+            <td style="font-weight: 500;">
+              <div>${med.name}</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Pattern: ${forecast.matchedPattern || 'Seasonal'}</div>
+            </td>
+            <td>${med.currentStock} units</td>
+            <td style="color: var(--neon-blue); font-weight: 600;">+${forecast.pctIncrease}% surge</td>
+            <td>${forecast.predictedDemand} units</td>
+            <td style="font-weight: 600; color: ${forecast.recommendedProcurement > 0 ? 'var(--neon-amber)' : 'white'};">
+              <div>${forecast.recommendedProcurement} units</div>
+              <div style="font-size: 10px; color: var(--text-secondary); font-weight: normal; white-space: normal; max-width: 200px; margin-top: 3px;">${forecast.reason || ''}</div>
+            </td>
+            <td style="color: ${shortfallColor}; font-weight: 600;">${forecast.shortfallDays} days left</td>
+          `;
+          fBody.appendChild(tr);
+        });
+      });
+
+      // 6. Alerts stack
+      const aStack = document.getElementById('alerts-stack');
+      aStack.innerHTML = '';
+      filteredAlerts.forEach(a => {
+        const item = document.createElement('div');
+        let urgencyClass = 'yellow';
+        if (a.type === 'RED') urgencyClass = 'red';
+        else if (a.type === 'DATA_GAP') urgencyClass = 'data-gap';
+
+        item.setAttribute('class', `alert-item ${urgencyClass}`);
+        item.innerHTML = `
+          <div class="alert-title">${a.title}</div>
+          <div class="alert-desc">${a.desc}</div>
+          <div class="alert-action">Action: ${a.action}</div>
+        `;
+        aStack.appendChild(item);
+      });
+      if (filteredAlerts.length === 0) {
+        aStack.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px 0;">No active alerts in this region.</div>`;
+      }
+
+      // 7. Transfer Orders Table
+      const tBody = document.getElementById('transfers-table-body');
+      tBody.innerHTML = '';
+      const filteredTransferOrders = transferOrders.filter(o => 
+        selectedRegion === 'ALL' ||
+        filteredCenterIds.includes(o.fromCenterId) || 
+        filteredCenterIds.includes(o.toCenterId)
+      );
+      const pendingOrders = filteredTransferOrders.filter(o => o.status === 'PENDING');
+      pendingOrders.forEach(o => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>TRF-${o.id}</td>
+          <td>
+            <div>${o.medicineName}</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">
+              From: ${o.fromCenterName} → To: ${o.toCenterName}
+            </div>
+          </td>
+          <td style="font-weight: 600;">${o.qty}</td>
+          <td>
+            <div style="display: flex;">
+              <button class="btn-action approve" onclick="approveOrder('${o.id}')">Approve</button>
+              <button class="btn-action reject" onclick="rejectOrder('${o.id}')">Reject</button>
+            </div>
+          </td>
+        `;
+        tBody.appendChild(tr);
+      });
+      if (pendingOrders.length === 0) {
+        tBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No pending transfer orders.</td></tr>`;
+      }
+
+      // 7b. Active Dispatches Table
+      const dispBody = document.getElementById('dispatches-table-body');
+      dispBody.innerHTML = '';
+      const activeShipments = filteredTransferOrders.filter(o => o.status === 'SHIPPED' || o.status === 'DELIVERED');
+      activeShipments.forEach(o => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>TRF-${o.id}</td>
+          <td>
+            <div style="font-weight: 500;">${o.medicineName}</div>
+            <div style="font-size: 10px; color: var(--text-secondary);">${o.fromCenterName} ➔ ${o.toCenterName}</div>
+          </td>
+          <td style="font-weight: 600;">${o.qty} units</td>
+          <td>
+            ${o.status === 'SHIPPED' ? `
+              <span style="color: var(--neon-amber); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                <span style="width: 6px; height: 6px; background: var(--neon-amber); border-radius: 50%; display: inline-block;"></span>
+                Shipping (ETA: ${o.remainingTicks} ticks)
+              </span>
+            ` : `
+              <span style="color: var(--neon-green); font-weight: 600;">
+                ✅ Arrived
+              </span>
+            `}
+          </td>
+        `;
+        dispBody.appendChild(tr);
+      });
+      if (activeShipments.length === 0) {
+        dispBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); font-size: 12px;">No active shipments.</td></tr>`;
+      }
+
+      // 8. Audit Log
+      const auditContainer = document.getElementById('audit-log-container');
+      auditContainer.innerHTML = '';
+      const filteredAuditLog = auditLog.filter(log => {
+        if (selectedRegion === 'ALL') return true;
+        return filteredCenters.some(c => log.action.includes(c.name) || log.action.includes(c.id));
+      });
+      filteredAuditLog.forEach(l => {
+        const div = document.createElement('div');
+        div.style.borderBottom = '1px solid rgba(255, 255, 255, 0.03)';
+        div.style.paddingBottom = '6px';
+        div.innerHTML = `
+          <span style="color: var(--text-secondary); margin-right: 6px;">[${l.timestamp}]</span>
+          <span style="color: var(--neon-blue); font-weight: 600; margin-right: 6px;">${l.userId}:</span>
+          <span>${l.action}</span>
+        `;
+        auditContainer.appendChild(div);
+      });
+
+      // 9. Update Chart Bars dynamically
+      const chartCenters = selectedRegion === 'ALL'
+        ? [centers['center_1'], centers['center_2'], centers['center_3'], centers['center_4']]
+        : filteredCenters;
+
+      const chartBarsGroup = document.getElementById('stock-chart-bars-group');
+      if (chartBarsGroup) {
+        chartBarsGroup.innerHTML = '';
+        chartCenters.forEach((c, idx) => {
+          if (!c) return;
+          const stockVal = c.healthScores.stock;
+          const barHeight = stockVal * 0.55;
+          const barY = 75 - barHeight;
+          const colWidth = 180 / chartCenters.length;
+          const barWidth = Math.max(8, colWidth - 12);
+          const barX = 10 + idx * colWidth + (colWidth - barWidth) / 2;
+
+          let color = 'var(--neon-green)';
+          if (stockVal < 60) color = 'var(--neon-red)';
+          else if (stockVal < 80) color = 'var(--neon-amber)';
+
+          // Create SVG rect element dynamically
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', barX.toString());
+          rect.setAttribute('y', barY.toString());
+          rect.setAttribute('width', barWidth.toString());
+          rect.setAttribute('height', barHeight.toString());
+          rect.setAttribute('class', 'chart-bar');
+          rect.setAttribute('fill', color);
+          rect.setAttribute('rx', '2');
+
+          // Create SVG text label element dynamically
+          const labelText = c.name.replace(/^(PHC|CHC)\s+/, '').split(' (')[0];
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', (barX + barWidth / 2).toString());
+          text.setAttribute('y', '90');
+          text.setAttribute('class', 'chart-label');
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('fill', 'var(--text-secondary)');
+          text.style.fontSize = '7px';
+          text.textContent = labelText;
+
+          // Create SVG percentage label dynamically
+          const pctText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          pctText.setAttribute('x', (barX + barWidth / 2).toString());
+          pctText.setAttribute('y', (barY - 4).toString());
+          pctText.setAttribute('text-anchor', 'middle');
+          pctText.setAttribute('fill', 'white');
+          pctText.style.fontSize = '6px';
+          pctText.style.fontWeight = 'bold';
+          pctText.textContent = `${stockVal}%`;
+
+          chartBarsGroup.appendChild(rect);
+          chartBarsGroup.appendChild(text);
+          chartBarsGroup.appendChild(pctText);
+        });
+      }
+    }
+
+    function showMapDetail(cId) {
+      const card = document.getElementById('map-detail-card');
+      if (!cId) {
+        card.classList.add('hidden');
+        return;
+      }
+      const c = centers[cId];
+      const docs = Object.values(c.doctors);
+      const present = docs.filter(d => d.status === 'PRESENT').length;
+      
+      let essentialGaps = [];
+      Object.values(c.tests).forEach(t => {
+        if (t.isEssential && (t.kitCount < 10 || t.expiryTimestamp < Date.now())) {
+          essentialGaps.push(t.name);
+        }
+      });
+
+      card.classList.remove('hidden');
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h4 style="font-weight: 600; color: var(--neon-blue);">${c.name} Details</h4>
+          <button class="btn-action approve" onclick="showMapDetail(null)">Close</button>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; font-size: 13px;">
+          <div>
+            <p style="color: var(--text-secondary);">Block: ${c.block}</p>
+            <p style="color: var(--text-secondary); margin-top: 4px;">Beds: ${c.beds.occupied} occupied / ${c.beds.capacity} capacity</p>
+            <p style="color: var(--text-secondary); margin-top: 4px;">Footfall: IPD: ${c.footfall.ipdCount} | OPD: ${c.footfall.opdCount}</p>
+          </div>
+          <div>
+            <p style="color: var(--text-secondary);">Stock Health: ${c.healthScores.stock}%</p>
+            <p style="color: var(--text-secondary); margin-top: 4px;">Doctors Active: ${present} / ${docs.length} present</p>
+            <p style="color: var(--text-secondary); margin-top: 4px; font-weight: 600;">Lab Gaps: <span style="color: var(--neon-red);">${essentialGaps.length > 0 ? essentialGaps.join(', ') : 'None'}</span></p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Actions Approvals
+    function approveOrder(orderId) {
+      const order = transferOrders.find(o => o.id === orderId);
+      if (!order) return;
+
+      centers[order.fromCenterId].stocks[order.medicineId].currentStock = Math.max(0, centers[order.fromCenterId].stocks[order.medicineId].currentStock - order.qty);
+      centers[order.fromCenterId].lastSync = Date.now();
+
+      order.status = 'SHIPPED';
+      order.remainingTicks = 3;
+
+      auditLog.unshift({
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        userId: 'District Officer',
+        action: `🚀 Shipped Transfer TRF-${orderId}: Dispatching ${order.qty} units of ${order.medicineName} from ${order.fromCenterName} to ${order.toCenterName} (in transit)`
+      });
+
+      evaluateAlerts();
+      renderDistrictDashboard();
+      alert(`Transfer order TRF-${orderId} Approved & Shipped! Dispatching medicine.`);
+    }
+
+    function rejectOrder(orderId) {
+      const order = transferOrders.find(o => o.id === orderId);
+      if (!order) return;
+      order.status = 'REJECTED';
+
+      auditLog.unshift({
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        userId: 'District Officer',
+        action: `Rejected Transfer TRF-${orderId}`
+      });
+
+      renderDistrictDashboard();
+    }
+
+    // Center Admin Render
+    function renderCenterAdminDashboard() {
+      const c = centers[selectedCenterId || activeCenterAdminId];
+      document.getElementById('admin-beds-occupied').innerText = `${c.beds.occupied} / ${c.beds.capacity}`;
+      const percent = Math.round((c.beds.occupied / c.beds.capacity) * 100);
+      document.getElementById('admin-beds-occupancy-percent').innerText = `${percent}% Occupancy`;
+      document.getElementById('admin-beds-input').value = c.beds.occupied;
+
+      // 1. Render Stocks (Tab 1)
+      const sBody = document.getElementById('admin-stock-table-body');
+      sBody.innerHTML = '';
+      Object.entries(c.stocks).forEach(([medId, med]) => {
+        const daysLeft = med.dailyBurnRate > 0 ? (med.currentStock / med.dailyBurnRate).toFixed(1) : 'Indefinite';
+        let statusText = 'Normal';
+        let colorStyle = 'var(--neon-green)';
+        if (med.currentStock < 0.1 * med.bufferStock) {
+          statusText = 'Critical';
+          colorStyle = 'var(--neon-red)';
+        } else if (med.currentStock < 0.2 * med.bufferStock) {
+          statusText = 'Warning';
+          colorStyle = 'var(--neon-amber)';
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 500;">${med.name}</td>
+          <td style="font-weight: 600; color: ${colorStyle};">${med.currentStock} units</td>
+          <td>${med.bufferStock} units</td>
+          <td>${med.dailyBurnRate} units</td>
+          <td>${daysLeft} days</td>
+          <td style="color: ${colorStyle}; font-weight: 600;">${statusText}</td>
+        `;
+        sBody.appendChild(tr);
+      });
+
+      // 2. Render Medical Staff & Toggles (Tab 2)
+      const staffBody = document.getElementById('admin-staff-table-body');
+      staffBody.innerHTML = '';
+      Object.entries(c.doctors).forEach(([docId, doc]) => {
+        const isPresent = doc.status === 'PRESENT';
+        const badgeClass = isPresent ? 'good' : 'critical';
+        const nextStatus = isPresent ? 'ABSENT' : 'PRESENT';
+        const buttonText = isPresent ? 'Call Out sick' : 'Check In';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 500;">${doc.name}</td>
+          <td>${doc.absentDaysOfLast10} days</td>
+          <td><span class="health-badge ${badgeClass}">${doc.status}</span></td>
+          <td>
+            <button class="btn-action ${isPresent ? 'reject' : 'approve'}" onclick="toggleDoctorStatus('${c.id}', '${docId}', '${nextStatus}')">
+              ${buttonText}
+            </button>
+          </td>
+        `;
+        staffBody.appendChild(tr);
+      });
+
+      // 3. Render Diagnostic Labs (Tab 3)
+      const labsBody = document.getElementById('admin-labs-table-body');
+      labsBody.innerHTML = '';
+      Object.entries(c.tests).forEach(([testId, test]) => {
+        const isExpired = test.expiryTimestamp < Date.now();
+        const isLow = test.kitCount < 10 || isExpired;
+        const color = isLow ? (test.isEssential ? 'var(--neon-red)' : 'var(--neon-amber)') : 'var(--neon-green)';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 500;">${test.name}</td>
+          <td style="font-weight: 600;">${test.isEssential ? '🔴 YES (Essential)' : '🟡 NO (Basic)'}</td>
+          <td style="color: ${color}; font-weight: 600;">${test.kitCount} kits</td>
+          <td style="font-size: 11px;">${isExpired ? 'EXPIRED' : 'Valid'}</td>
+          <td>
+            <input type="number" min="0" value="${test.kitCount}" style="width: 70px; display: inline-block; padding: 4px; border-radius: 4px; margin-right: 4px;" onchange="updateLabKitCount('${c.id}', '${testId}', this.value)" />
+          </td>
+        `;
+        labsBody.appendChild(tr);
+      });
+
+      // 4. Render AI Forecast (Tab 4)
+      const forecastBody = document.getElementById('admin-forecast-table-body');
+      forecastBody.innerHTML = '';
+      Object.entries(c.stocks).forEach(([medId, med]) => {
+        const forecast = demandForecasts[c.id] ? demandForecasts[c.id][medId] : { predictedDemand: 0, recommendedProcurement: 0, shortfallDays: 0, pctIncrease: 15 };
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 500;">
+            <div>${med.name}</div>
+            <div style="font-size: 10px; color: var(--neon-blue); font-weight: 600;">AI Confidence: ${forecast.confidenceScore || 92}%</div>
+          </td>
+          <td style="color: var(--neon-blue);">
+            <div>+${forecast.pctIncrease}% seasonal surge</div>
+            <div style="font-size: 10px; color: var(--text-secondary);">Pattern: ${forecast.matchedPattern || 'Seasonal'}</div>
+          </td>
+          <td>${forecast.predictedDemand} units</td>
+          <td style="color: var(--neon-amber); font-weight: 600;">
+            <div>${forecast.recommendedProcurement} units Needed</div>
+            <div style="font-size: 10px; color: var(--text-secondary); font-weight: normal; white-space: normal; max-width: 200px; margin-top: 3px;">${forecast.reason || ''}</div>
+          </td>
+          <td>${forecast.shortfallDays} days left</td>
+        `;
+        forecastBody.appendChild(tr);
+      });
+
+      // 5. Warnings
+      const alertsContainer = document.getElementById('admin-alerts-container');
+      alertsContainer.innerHTML = '';
+      const localAlerts = alerts.filter(a => a.centerId === c.id);
+      localAlerts.forEach(a => {
+        const div = document.createElement('div');
+        div.style.padding = '10px';
+        div.style.background = 'rgba(255, 255, 255, 0.03)';
+        div.style.borderRadius = '6px';
+        div.style.borderLeft = `3px solid ${a.type === 'RED' ? 'var(--neon-red)' : 'var(--neon-amber)'}`;
+        div.innerHTML = `
+          <div style="font-weight: 600; font-size: 12px;">${a.title}</div>
+          <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">${a.desc}</div>
+        `;
+        alertsContainer.appendChild(div);
+      });
+      if (localAlerts.length === 0) {
+        alertsContainer.innerHTML = `<div style="text-align: center; font-size: 12px; color: var(--text-secondary);">No warnings for this center.</div>`;
+      }
+    }
+
+    function toggleDoctorStatus(centerId, docId, nextStatus) {
+      centers[centerId].doctors[docId].status = nextStatus;
+      centers[centerId].lastSync = Date.now();
+      
+      auditLog.unshift({
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        userId: 'Center Admin',
+        action: `Staff change: Toggled status of Doctor ${docId} at ${centers[centerId].name} to ${nextStatus}`
+      });
+
+      evaluateAlerts();
+      renderCenterAdminDashboard();
+    }
+
+    function updateLabKitCount(centerId, testId, value) {
+      centers[centerId].tests[testId].kitCount = parseInt(value, 10) || 0;
+      centers[centerId].lastSync = Date.now();
+
+      auditLog.unshift({
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        userId: 'Center Admin',
+        action: `Lab update: Updated kit count of test ${testId} at ${centers[centerId].name} to ${value} units`
+      });
+
+      evaluateAlerts();
+      renderCenterAdminDashboard();
+    }
+
+    function onAdminBedsChange(val) {
+      const c = centers[selectedCenterId || activeCenterAdminId];
+      const occupied = parseInt(val, 10) || 0;
+      c.beds.occupied = occupied;
+      c.beds.available = Math.max(0, c.beds.capacity - occupied);
+      c.lastSync = Date.now();
+
+      auditLog.unshift({
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        userId: `MO ${c.name}`,
+        action: `Updated beds occupancy to ${occupied}/${c.beds.capacity}`
+      });
+
+      evaluateAlerts();
+      renderCenterAdminDashboard();
+    }
+
+    // Field Worker Render
+    function renderFieldWorkerDashboard() {
+      document.getElementById('worker-stock-input').value = '';
+      
+      const c = centers[selectedCenterId || activeWorkerCenterId];
+      const medSelector = document.getElementById('worker-med-selector');
+      if (c && medSelector) {
+        // Save current selection value
+        const curVal = medSelector.value;
+        
+        // Populate options from stocks
+        medSelector.innerHTML = '';
+        Object.entries(c.stocks).forEach(([medId, med]) => {
+          const opt = document.createElement('option');
+          opt.value = medId;
+          opt.text = med.name;
+          medSelector.appendChild(opt);
+        });
+        
+        // Restore value if still valid
+        if (c.stocks[curVal]) {
+          medSelector.value = curVal;
+        } else if (Object.keys(c.stocks).length > 0) {
+          medSelector.value = Object.keys(c.stocks)[0];
+        }
+        
+        // Sync custom dropdown UI representation
+        const customDropdown = document.getElementById('worker-med-selector-custom-dropdown');
+        if (customDropdown && customDropdown.sync) {
+          customDropdown.sync();
+        }
+      }
+    }
+
+    function submitWorkerStock() {
+      const c = centers[selectedCenterId || activeWorkerCenterId];
+      const medId = document.getElementById('worker-med-selector').value;
+      const qty = parseInt(document.getElementById('worker-stock-input').value, 10) || 0;
+      
+      c.stocks[medId].currentStock = qty;
+      c.lastSync = Date.now();
+
+      auditLog.unshift({
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        userId: 'Field Worker',
+        action: `Logged stock level of ${c.stocks[medId].name} at ${c.name} as ${qty} units`
+      });
+
+      evaluateAlerts();
+      alert('Stock successfully synchronized with database!');
+      renderFieldWorkerDashboard();
+    }
+
+    function runSimTick() {
+      const now = Date.now();
+
+      // Process active dispatches countdown
+      transferOrders.forEach(o => {
+        if (o.status === 'SHIPPED') {
+          o.remainingTicks--;
+          if (o.remainingTicks <= 0) {
+            o.status = 'DELIVERED';
+            o.remainingTicks = 0;
+            const destC = centers[o.toCenterId];
+            if (destC && destC.stocks[o.medicineId]) {
+              destC.stocks[o.medicineId].currentStock += o.qty;
+              destC.lastSync = Date.now();
+            }
+            alerts = alerts.filter(a => a.id !== `ST-RED-${o.toCenterId}-${o.medicineId}`);
+            auditLog.unshift({
+              id: `audit-${Date.now()}`,
+              timestamp: new Date().toLocaleString(),
+              userId: 'SHIPPING_BOT',
+              action: `🚚 Delivered Transfer TRF-${o.id}: ${o.qty} units of ${o.medicineName} arrived at ${o.toCenterName}`
+            });
+          }
+        }
+      });
+
+      Object.values(centers).forEach(c => {
+        // A. Medicine Stocks depletion
+        Object.keys(c.stocks).forEach(medId => {
+          const med = c.stocks[medId];
+          const depletion = med.dailyBurnRate * 0.05 * simSpeed;
+          med.currentStock = Math.max(0, Math.round(med.currentStock - (Math.random() > 0.3 ? depletion : 0)));
+        });
+
+        // B. Diagnostic kit usage
+        Object.keys(c.tests).forEach(testId => {
+          const test = c.tests[testId];
+          const usage = (test.isEssential ? 0.35 : 0.18) * simSpeed;
+          test.kitCount = Math.max(0, Math.round(test.kitCount - (Math.random() > 0.55 ? usage : 0)));
+        });
+
+        // C. Bed occupancy fluctuation
+        const fluctuation = Math.random() > 0.65 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+        c.beds.occupied = Math.max(0, Math.min(c.beds.capacity, c.beds.occupied + fluctuation));
+        c.beds.available = c.beds.capacity - c.beds.occupied;
+
+        // D. Patient footfall updates
+        c.footfall.opdCount += Math.max(1, Math.round(Math.random() * 3 * simSpeed));
+        c.footfall.ipdCount += (Math.random() > 0.82 ? 1 : 0);
+        c.footfall.total = c.footfall.opdCount + c.footfall.ipdCount;
+
+        // E. Doctor check-in/out
+        if (Math.random() > 0.96) {
+          const docs = Object.values(c.doctors);
+          if (docs.length > 0) {
+            const doc = docs[Math.floor(Math.random() * docs.length)];
+            doc.status = doc.status === 'PRESENT' ? 'ABSENT' : 'PRESENT';
+          }
+        }
+
+        // F. Re-evaluate Health Scores
+        // i. Stock
+        let stockSum = 0;
+        Object.values(c.stocks).forEach(m => {
+          const ratio = m.currentStock / m.bufferStock;
+          let s = 100;
+          if (ratio < 0.1) s = 20;
+          else if (ratio < 0.2) s = 50;
+          else if (ratio < 1.0) s = 85;
+          stockSum += s;
+        });
+        c.healthScores.stock = Math.round(stockSum / Object.keys(c.stocks).length);
+
+        // ii. Attendance
+        const docs = Object.values(c.doctors);
+        const present = docs.filter(d => d.status === 'PRESENT').length;
+        c.healthScores.attendance = docs.length > 0 ? Math.round((present / docs.length) * 100) : 100;
+
+        // iii. Bed
+        const bedRate = c.beds.capacity > 0 ? c.beds.occupied / c.beds.capacity : 0;
+        if (bedRate >= 1.0) c.healthScores.bed = 40;
+        else if (bedRate >= 0.85) c.healthScores.bed = 75;
+        else if (bedRate < 0.30) c.healthScores.bed = 60;
+        else c.healthScores.bed = 100;
+
+        // iv. Test Availability
+        let essentialPresent = 0;
+        let essentialTotal = 0;
+        Object.values(c.tests).forEach(t => {
+          if (t.isEssential) {
+            essentialTotal++;
+            if (t.kitCount > 0 && t.expiryTimestamp > now) essentialPresent++;
+          }
+        });
+        c.healthScores.test = essentialTotal > 0 ? Math.round((essentialPresent / essentialTotal) * 100) : 100;
+
+        // v. Footfall score
+        c.healthScores.footfall = Math.min(100, Math.max(50, c.healthScores.footfall + (Math.random() > 0.5 ? 1 : -1)));
+
+        // vi. Overall
+        c.healthScores.overall = Math.round(
+          c.healthScores.stock * 0.30 +
+          c.healthScores.attendance * 0.25 +
+          c.healthScores.test * 0.20 +
+          c.healthScores.bed * 0.15 +
+          c.healthScores.footfall * 0.10
+        );
+      });
+
+      // Side effects evaluation
+      evaluateAlerts();
+      computeForecasts();
+      autoRedistribute();
+
+      // Flashing Live Sync Dot Animation
+      const indicator = document.getElementById('sync-indicator');
+      indicator.style.opacity = '0.3';
+      setTimeout(() => { indicator.style.opacity = '1'; }, 200);
+      document.getElementById('sync-time').innerText = new Date().toLocaleString();
+
+      // Re-render active view
+      if (currentRole === 'DISTRICT_OFFICER') renderDistrictDashboard();
+      else if (currentRole === 'CENTER_ADMIN') renderCenterAdminDashboard();
+      else if (currentRole === 'FIELD_WORKER') renderFieldWorkerDashboard();
+    }
+
+    function toggleSim() {
+      isSimActive = !isSimActive;
+      const btn = document.getElementById('sim-play-btn');
+      if (isSimActive) {
+        btn.innerText = '⏸️ Pause';
+        btn.style.background = 'rgba(59, 130, 246, 0.2)';
+        btn.style.color = 'var(--neon-blue)';
+        startSimLoop();
+      } else {
+        btn.innerText = '▶️ Resume';
+        btn.style.background = 'rgba(16, 185, 129, 0.2)';
+        btn.style.color = 'var(--neon-green)';
+        clearInterval(simInterval);
+      }
+    }
+
+    function changeSimSpeed(val) {
+      simSpeed = parseInt(val, 10) || 1;
+      if (isSimActive) {
+        startSimLoop();
+      }
+    }
+
+    function triggerSimIncident(incidentType) {
+      if (!incidentType) return;
+      const now = Date.now();
+
+      if (incidentType === 'outbreak') {
+        const c = centers['center_2'];
+        c.footfall.opdCount += 120;
+        c.footfall.total = c.footfall.opdCount + c.footfall.ipdCount;
+        
+        alerts = alerts.filter(a => a.id !== 'FF-OUTBREAK-center_2');
+        alerts.push({
+          id: 'FF-OUTBREAK-center_2',
+          centerId: 'center_2',
+          type: 'RED',
+          title: '🚨 OUTBREAK SPIKE DETECTED',
+          desc: `CHC Bandra (Mumbai) saw 3.2x usual footfall today (${c.footfall.total} visits vs average 44). Possible disease cluster!`,
+          action: 'Deploy Mobile Health Unit. Redirect patients to nearest facilities.',
+          urgency: 4
+        });
+        auditLog.unshift({ id: `audit-${Date.now()}`, timestamp: new Date().toLocaleString(), userId: 'INCIDENT_ENGINE', action: '🚨 Triggered Outbreak Surge incident at CHC Bandra (Mumbai)' });
+      } else if (incidentType === 'stock_drain') {
+        const c = centers['center_1'];
+        c.stocks['med_paracetamol'].currentStock = 2;
+        c.stocks['med_ors'].currentStock = 1;
+        auditLog.unshift({ id: `audit-${Date.now()}`, timestamp: new Date().toLocaleString(), userId: 'INCIDENT_ENGINE', action: '⚠️ Triggered Critical Stock Shortage incident at PHC Dwarka (Delhi)' });
+      } else if (incidentType === 'staff_leave') {
+        const c = centers['center_3'];
+        Object.values(c.doctors).forEach(d => d.status = 'ABSENT');
+        auditLog.unshift({ id: `audit-${Date.now()}`, timestamp: new Date().toLocaleString(), userId: 'INCIDENT_ENGINE', action: '🚨 Triggered Staff Emergency: All Doctors Absent at PHC Indiranagar (Bengaluru)' });
+      } else if (incidentType === 'kit_expiry') {
+        const c = centers['center_4'];
+        Object.values(c.tests).forEach(t => {
+          t.expiryTimestamp = now - 1000;
+          t.kitCount = 0;
+        });
+        auditLog.unshift({ id: `audit-${Date.now()}`, timestamp: new Date().toLocaleString(), userId: 'INCIDENT_ENGINE', action: '🚨 Triggered Diagnostic Block: Lab kit expiry at CHC Salt Lake (Kolkata)' });
+      }
+
+      evaluateAlerts();
+      if (currentRole === 'DISTRICT_OFFICER') renderDistrictDashboard();
+      else if (currentRole === 'CENTER_ADMIN') renderCenterAdminDashboard();
+    }
+
+    function startSimLoop() {
+      if (simInterval) clearInterval(simInterval);
+      simInterval = setInterval(runSimTick, 4000 / simSpeed);
+    }
+
+    // Voice simulation
+    function startMicRecord() {
+      const btn = document.getElementById('voice-mic-btn');
+      btn.classList.add('recording');
+      document.getElementById('voice-status').innerText = 'Transcribing Tamil/Hindi/Telugu/English...';
+      
+      setTimeout(() => {
+        btn.classList.remove('recording');
+        document.getElementById('voice-status').innerText = 'Synthesized Voice Result Generated.';
+        
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance("Voice recognition active. Please select one of the language queries below to run a complete diagnostic report.");
+          utterance.lang = "en-US";
+          window.speechSynthesis.speak(utterance);
+        }
+      }, 1500);
+    }
+
+    function triggerVoiceSample(idx) {
+      const q = voiceSampleQueries[idx];
+      const btn = document.getElementById('voice-mic-btn');
+      btn.classList.add('recording');
+      document.getElementById('voice-status').innerText = `Transcribing ${q.lang}...`;
+      
+      setTimeout(() => {
+        btn.classList.remove('recording');
+        document.getElementById('voice-status').innerText = 'Speech-to-Text completed. Translation & Gemini analysis active.';
+        
+        setTimeout(() => {
+          document.getElementById('voice-response-container').classList.remove('hidden');
+          document.getElementById('voice-transcript').innerText = `"${q.transcript}"`;
+          document.getElementById('voice-response').innerText = q.response;
+          document.getElementById('voice-status').innerText = 'Voice response synthesized successfully.';
+          
+          // Speak audio aloud using window.speechSynthesis
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            
+            let voiceText = '';
+            let langCode = 'en-US';
+            
+            if (idx === 0) {
+              voiceText = 'प्राथमिक स्वास्थ्य केंद्र अलंदूर में १५ ओआरएस पैकेट बचे हैं। यह बफर स्टॉक से कम है, कृपया नया खरीद ऑर्डर जारी करें।';
+              langCode = 'hi-IN';
+            } else if (idx === 1) {
+              voiceText = 'அலந்தூர் மையத்தில் பாராசிட்டமால் இருப்பு மிகக் குறைவாக உள்ளது. தாம்பரம் மையத்தில் இருந்து மாற்றுவதற்கு பரிந்துரைக்கப்படுகிறது.';
+              langCode = 'ta-IN';
+            } else if (idx === 2) {
+              voiceText = 'తాంబరం సామాజిక ఆరోగ్య కేంద్రంలో ప్రస్తుతం ఇరవై ఐదు బెడ్లు ఖాళీగా ఉన్నాయి. వినియోగం గత వారం నుండి ముప్పై శాతం కంటే తక్కువగా ఉంది.';
+              langCode = 'te-IN';
+            }
+            
+            const utterance = new SpeechSynthesisUtterance(voiceText);
+            utterance.lang = langCode;
+            
+            const voices = window.speechSynthesis.getVoices();
+            const voice = voices.find(v => v.lang.startsWith(langCode) || v.lang === langCode);
+            if (voice) {
+              utterance.voice = voice;
+            }
+            
+            window.speechSynthesis.speak(utterance);
+          }
+        }, 800);
+      }, 1000);
+    }
+
+    function updateSelectValue(selectId, value) {
+      const select = document.getElementById(selectId);
+      if (select) {
+        select.value = value;
+        const customDropdown = document.getElementById(`${selectId}-custom-dropdown`);
+        if (customDropdown && customDropdown.sync) {
+          customDropdown.sync();
+        }
+      }
+    }
+
+    function initCustomDropdown(selectId, width = null, placeholder = "Select...") {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+
+      // Hide original select
+      select.style.display = 'none';
+
+      // Check if wrapper already exists
+      let container = document.getElementById(`${selectId}-custom-dropdown`);
+      if (container) {
+        container.remove();
+      }
+
+      // Create container wrapper
+      container = document.createElement('div');
+      container.id = `${selectId}-custom-dropdown`;
+      container.className = 'custom-dropdown-container';
+      if (width) {
+        container.style.width = width;
+      } else if (select.style.width) {
+        container.style.width = select.style.width;
+      } else {
+        container.style.width = '100%';
+      }
+
+      // Create trigger
+      const trigger = document.createElement('div');
+      trigger.className = 'custom-dropdown-trigger';
+      
+      const triggerText = document.createElement('span');
+      triggerText.style.overflow = 'hidden';
+      triggerText.style.textOverflow = 'ellipsis';
+      triggerText.style.whiteSpace = 'nowrap';
+
+      const arrow = document.createElement('span');
+      arrow.style.fontSize = '9px';
+      arrow.style.opacity = '0.7';
+      arrow.style.marginLeft = '6px';
+      arrow.textContent = '▼';
+
+      trigger.appendChild(triggerText);
+      trigger.appendChild(arrow);
+      container.appendChild(trigger);
+
+      // Create options panel
+      const optionsPanel = document.createElement('div');
+      optionsPanel.className = 'custom-dropdown-options';
+      container.appendChild(optionsPanel);
+
+      // Insert container after original select
+      select.parentNode.insertBefore(container, select.nextSibling);
+
+      // Render options
+      function renderOptions() {
+        optionsPanel.innerHTML = '';
+        const options = Array.from(select.options);
+        const selectedValue = select.value;
+        const selectedOption = options.find(opt => opt.value === selectedValue);
+        
+        triggerText.textContent = selectedOption ? selectedOption.text : placeholder;
+
+        options.forEach(opt => {
+          const optDiv = document.createElement('div');
+          optDiv.className = 'custom-dropdown-option';
+          if (opt.value === selectedValue) {
+            optDiv.className += ' selected';
+          }
+          optDiv.textContent = opt.text;
+          optDiv.onclick = (e) => {
+            e.stopPropagation();
+            select.value = opt.value;
+            // Dispatch change event to trigger inline or listener handlers
+            select.dispatchEvent(new Event('change'));
+            optionsPanel.classList.remove('show');
+            trigger.classList.remove('open');
+            renderOptions();
+          };
+          optionsPanel.appendChild(optDiv);
+        });
+      }
+
+      renderOptions();
+
+      // Trigger click logic
+      trigger.onclick = (e) => {
+        e.stopPropagation();
+        
+        // Close all other custom dropdowns first
+        document.querySelectorAll('.custom-dropdown-options').forEach(panel => {
+          if (panel !== optionsPanel) {
+            panel.classList.remove('show');
+            if (panel.previousSibling) {
+              panel.previousSibling.classList.remove('open');
+            }
+          }
+        });
+
+        const isOpen = optionsPanel.classList.toggle('show');
+        trigger.classList.toggle('open', isOpen);
+      };
+
+      // Click outside to close
+      window.addEventListener('click', () => {
+        optionsPanel.classList.remove('show');
+        trigger.classList.remove('open');
+      });
+
+      container.sync = renderOptions;
+      return container;
+    }
+
+    // By default, hide dashboard until authenticated
+    document.querySelector('.app-container').style.display = 'none';
+
+    // Initialize Page
+    computeForecasts();
+    
+    // Initialize custom dropdown elements
+    initCustomDropdown('sim-speed-select', '105px', 'Select...');
+    initCustomDropdown('sim-event-select', '155px', '⚡ Trigger Incident');
+    initCustomDropdown('center-selector', '200px', 'Select Center...');
+    initCustomDropdown('worker-med-selector', '100%', 'Select Medicine...');
+    initCustomDropdown('region-selector', '260px', 'All India Command');
+
+    setRole('DISTRICT_OFFICER');
+    startSimLoop();
+  </script>
+</body>
+</html>
