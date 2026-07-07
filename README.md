@@ -42,7 +42,7 @@ The application follows a simple reactive architecture:
 
 ### Technical Architecture Diagram
 
-![alt text](<React Frontend Role-based-2026-06-27-102412.png>)
+![alt text](<architecture diagram.png>)
 
 ---
 
