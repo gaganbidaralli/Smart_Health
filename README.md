@@ -42,7 +42,7 @@ The application follows a simple reactive architecture:
 
 ### Architecture Diagram
 
-![Architecture Diagram](architecture diagram.png)
+![Architecture Diagram](src/architecture%20diagram.png)
 
 ---
 
