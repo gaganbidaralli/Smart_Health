@@ -40,9 +40,9 @@ The application follows a simple reactive architecture:
 - Frontend UI → Health Context → Simulation Engine → Alert/Forecast Evaluation
 - Backend API → Firebase Database → Seed/Job Execution → Operational Insights
 
-### Technical Architecture Diagram
+### Architecture Diagram
 
-![Architecture Diagram](src/architecture diagram.png)
+![Architecture Diagram](architecture diagram.png)
 
 ---
 
